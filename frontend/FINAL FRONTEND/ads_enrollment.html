@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Enrollment</title>
+    <link rel="stylesheet" href="ads-css.css">
+</head>
+
+<style>
+    
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://plm.edu.ph/FooterImage.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* HEADER */
+        .header {
+            max-width: 100%;
+            max-height: 60px;
+            padding: 15px 35px;
+            background-color: white;
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            box-shadow: 0px 1px 10px 1px#52525286;
+            align-items: center;
+        }
+
+        .header p {
+            font-family: 'Times New Roman', Times, serif; 
+            color: #b18819; 
+            font-size: 25px; 
+            font-weight: bold; 
+            vertical-align: middle; 
+        }
+
+        .header img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .tabsBtn {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            right: 2%;
+            gap: 8px;
+        }
+
+        .tabs-btn { 
+            display: flex;
+            font-size: 22px;
+            position: relative;
+            display: inline-flex;
+            text-align: center;
+            background-color: transparent;
+            color: 080808;
+            padding: 10px 20px;
+            border-width: 0px;
+            cursor: pointer;
+        }
+
+        .tabs-btn::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -5px; 
+        width: 0;
+        height: 2px;
+        background-color: #b18819; 
+        text-decoration-thickness: 3px;
+        transition: width 0.6s ease-in-out; 
+        }
+
+        .tabs-btn:hover::after {
+            width: 100%; 
+        }
+
+        .tabs-btn:hover {
+            color: #b18819;
+        }
+
+        .name-panel {
+            background-color: #ffffff;
+            max-height: 100px;
+            width: 90%;        
+            margin: 0;            
+            position: absolute;
+            top: 140px;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            padding: 20px 35px;       
+            border-radius: 30px;
+            text-align: center;
+            align-items: center;
+            box-shadow: 0px 1px 10px 1px #52525286;  
+            display: flex;
+            align-items: center;
+            gap: 10px; 
+        }
+
+
+        .clickable-name {
+            color: #020202;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 23px;
+        }
+
+        .clickable-name:hover {
+            color: #0b4fa8;
+        }
+
+        .student-number {
+            color: rgb(93, 92, 93);
+            font-style: italic;
+            font-size: 23px;
+        }
+
+        /* MAIN PANEL */
+        .container {
+            background-color: #ffffff;
+            min-height: 600px;
+            width: 90%;        
+            margin: 0; 
+            margin-bottom: 50px;           
+            position: absolute;
+            top: 230px;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            padding: 30px 35px;       
+            border-radius: 30px;
+            text-align: center;
+            align-items: center;
+            box-shadow: 0px 1px 10px 1px #52525286;  
+        }  
+
+        /* TABLES */
+        table {
+            max-width: 100%;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+
+        th {
+            background-color: #BF1A1A;
+            color: white;
+            padding: 8px;
+        }
+
+        td {
+            padding: 8px;
+            background: #f7f7f7;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .btn-add, .btn-remove {
+            padding: 6px 12px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .btn-add {
+            background-color: #1a7fbf;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background-color: #155a8a;
+        }
+
+        .btn-remove {
+            background-color: #bf1a1a;
+            color: white;
+        }
+
+        .btn-remove:hover {
+            background-color: #8a1212;
+        }
+
+        /* NEXT BUTTON */
+        .next-btn {
+            padding: 12px 25px;
+            background-color: #b18819;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            position: relative;
+            padding-top: 40px;
+        }
+
+        .line-bg {
+            position: absolute;
+            top: 69px;
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background: #e7e6e6;
+            border-radius: 4px;
+        }
+
+        .line-fill {
+            position: absolute;
+            top: 69px;
+            left: 50px;
+            height: 4px;
+            background: #BF1A1A;
+            border-radius: 4px;
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step {
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #bbb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .label {
+            font-size: 17px;
+            color: #777;
+            margin-top: 10px;
+            max-width: 100px;
+            text-align: center;
+            display: block; 
+        }
+
+        /* ACTIVE STEP */
+        .active .circle {
+            border-color: #BF1A1A;
+            color: #BF1A1A;
+        }
+
+        .active .label {
+            color: #BF1A1A;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .completed .circle {
+            border-color: #BF1A1A;
+            background: #BF1A1A;
+            color: white;
+        }
+
+        .completed .label {
+            color: #BF1A1A;
+            font-weight: bold;
+        }
+
+        /*SEARCH AND DROPDOWNS*/
+        .search-container {
+        top: 50%;
+        left: 40px;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        }
+
+        .search-input {
+            width: 300px;
+            height: 35px;
+            border-radius: 6px;
+            border: none;
+            padding: 0 12px;
+            font-size: 14px;
+            background-color: #e2e6eb;
+        }
+
+        .search-input:focus {
+            outline: 2px solid #CBCBCB;
+        }
+
+        .search-button {
+            width: 50px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            background-color: #CBCBCB;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-button img {
+            width: 28px;
+            height: 22px;
+        }
+
+        .search-button:hover {
+            background-color: #e2e6eb;
+        }
+
+            .dropdown {
+                height: 35px;
+                border: none;
+                border-radius: 6px;
+                background-color: #CBCBCB;
+                cursor: pointer;
+                font-size: 14px;
+                padding: 0 25px 0 10px; 
+                text-align: left;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+
+                background-image: url(images/dropdown.png);
+                background-repeat: no-repeat;
+                background-size: 12px 12px;
+                background-position: right 10px center; 
+            }
+
+        .dropdown:hover {
+            background-color: #e2e6eb;
+        }
+
+        .subject-dropdown {
+            width: 100px; 
+        }
+
+        .semester-dropdown {
+            width: 80px;
+        }
+
+        .dropdown-option {
+            text-align: center;
+            height: 35px;
+            padding: 0 0 50px 0; 
+        }
+
+        .noticeContainer {
+                width: 800px;
+                height: 35px;
+                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position:absolute;
+                right:0%;
+                color: #BF1A1A;
+                font-weight: bold;
+            }
+        
+        /*  SIGN OUT POP UP */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .popup-box {
+            background: white;
+            width: 320px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .popup-logo { 
+            width: 60px; 
+            height: 60px; 
+            margin-bottom: 10px; 
+            object-fit: contain; 
+        }
+
+        .popup-box h3 { 
+            margin: 5px 0 10px 0; 
+            font-size: 22px; 
+            color: #080808; 
+        }
+
+        .popup-box p { 
+            font-size: 14px; 
+            color: #444; 
+            margin-bottom: 20px; 
+        }
+
+        .popup-btn {
+            width: 50%;
+            padding: 12px;
+            border-radius: 13px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .signout-btn { 
+            background-color: #8a6912; 
+            color: white; 
+        }
+
+        .signout-btn:hover { 
+            background-color: #b18819;
+ 
+        }
+
+        .cancel-btn { 
+            background-color: #CBCBCB; 
+            color: #000; 
+        }
+
+        .cancel-btn:hover { 
+            background-color: #e2e6eb; 
+        }
+</style>
+
+<body>
+    
+    <!-- HEADER -->
+    <div class = "header">
+        <img src = "https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
+        <p>PAMANTASAN NG LUNGSOD NG MAYNILA
+        </p>  
+
+        <div class = "tabsBtn">
+            <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
+            <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
+            <button class="tabs-btn" onclick="openGrades()">View Grades</button>
+            <button style = "color:#b18819" class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
+            <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="name-panel">
+
+        <span class="clickable-name" onclick="openProfile()">
+            Dela Cruz, Juan A.
+        </span>
+
+        <span class="student-number">(202312345)</span>
+
+
+    </div>
+        
+    <!-- MAIN PANEL -->
+        <div class="container">
+            <!-- for progress bar -->
+            <div class="progress-container">
+                <div class="line-bg"></div>
+                <div class="line-fill" id="line"></div>
+
+                <div class="steps">
+                    <div class="step" id="step1">
+                        <div class="circle">1</div>
+                        <div class="label">SUBJECT ENLISTMENT</div>
+                    </div>
+
+                    <div class="step" id="step2">
+                        <div class="circle">2</div>
+                        <div class="label">CONFIRM ENROLLMENT</div>
+                    </div>
+
+                    <div class="step" id="step3">
+                        <div class="circle">3</div>
+                        <div class="label">VIEW SCHEDULE</div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- subjects for approval table -->
+            <h3>SUBJECTS FOR APPROVAL</h3>
+
+            <table id="approvalTable">
+                <tr>
+                    <th>Action</th>
+                    <th>SUBJECT CODE</th>
+                    <th>SECTION</th> <!--di ko alam if units ba isasama dit or types-->
+                    <th>SUBJECT TITLE</th>
+                    <th>SCHEDULE</th> 
+                </tr>
+            </table>
+
+            
+            <p></p> 
+
+            <div class="search-container">
+
+                <!-- Search input -->
+                <input type="text" class="search-input" placeholder="Search Subject...">
+
+                <!-- Search button -->
+                <button class="search-button">
+                    <img src="images/searchLogoBtn.png" alt="Search Icon">
+                </button>
+
+                <!-- Subject Type Dropdown -->
+                <select class="dropdown subject-dropdown">
+                    <option value="">Sub Type</option>
+                    <option value="MIN">Minor</option>
+                    <option value="MAJ">Major</option>
+                </select>
+
+                <!-- Semester Dropdown -->
+                <select class="dropdown semester-dropdown">
+                    <option value="">Sem</option>
+                    <option value="1st">First</option>
+                    <option value="2nd">Second</option>
+                    <option value="Mid">Midyear</option>
+                </select>
+
+                <div class="noticeContainer">
+                        <p> NOTICE: You are not yet enrolled unless your subjects are already approved by the college department </p>
+                </div>
+
+            </div>
+
+            <!-- available subjects -->
+            <h3 style="margin-top: 30px;">AVAILABLE SUBJECTS</h3>
+            <table id="resultsTable">
+                <tr>
+                    <th>Action</th>
+                    <th>SUBJECT CODE</th>
+                    <th>SECTION</th>
+                    <th>SUBJECT TITLE</th> <!-- di ko alam if isasama ba to (based sa pics) or sundin table nila na semester ID -->
+                    <th>UNITS</th> <!-- di ko alam if isasama ba to (based sa pics) or sundin table nila na semester ID -->
+                    <th>SCHEDULE</th>
+                    <th>ROOM</th>
+                    <th>AVAILABLE SLOTS</th>
+                </tr>
+
+                <!-- sample -->
+                <tr>
+                    <td><button class="btn-add" onclick="addSubject(this)">ADD</button></td>
+                    <td>CS101</td>
+                    <td>1</td>
+                    <td>ADS</td>
+                    <td>3</td>
+                    <td>S 1:00–3:00</td>
+                    <td>GCA 307</td>
+                    <td>40</td>
+                </tr>
+                <tr>
+                    <td><button class="btn-add" onclick="addSubject(this)">ADD</button></td>
+                    <td>CS102</td>
+                    <td>1</td>
+                    <td>INFOMAN</td>
+                    <td>3</td>
+                    <td>W 1:00–3:00</td>
+                    <td>GV 301</td>
+                    <td>40</td>
+            
+                </tr>
+            </table>
+
+            <button class="next-btn" onclick="nextStep()">NEXT</button>
+
+        </div>
+
+
+    <!-- SIGN OUT POPUP -->
+    <div class="popup-overlay" id="signoutPopup">
+        <div class="popup-box">
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
+            <h3>Sign out?</h3>
+            <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
+
+            <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
+            <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        
+        function updateProgressBar() {
+            document.querySelectorAll(".step").forEach(s => {
+                s.classList.remove("active", "completed");
+            });
+
+            if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
+            if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
+            if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+
+            const line = document.getElementById("line");
+            if (currentStep === 1) line.style.width = "0%";
+            if (currentStep === 2) line.style.width = "calc(50% - 50px)";
+            if (currentStep === 3) line.style.width = "calc(100% - 100px)";
+        }
+
+        function nextStep() { window.location.href = "ads_enrollment2.html"; if (currentStep < 3) {
+                currentStep++;
+                updateProgressBar();
+            }
+        let currentStep = 1;}
+
+        updateProgressBar();
+
+        function addSubject(btn) {
+            let row = btn.parentElement.parentElement;
+            
+            // pangkuha data sa tables para malagay sa approval table.
+            let subjectCode = row.cells[1].textContent;
+            let section = row.cells[2].textContent;
+            let subjectTitle = row.cells[3].textContent;
+            let schedule = row.cells[5].textContent;
+            
+            // approval table
+            let newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td><button class='btn-remove' onclick='removeSubject(this)'>REMOVE</button></td>
+                <td>${subjectCode}</td>
+                <td>${section}</td>
+                <td>${subjectTitle}</td>
+                <td>${schedule}</td>
+            `;
+            
+            document.getElementById("approvalTable").appendChild(newRow);
+        }
+
+        /* remove subject */
+        function removeSubject(btn) {
+            btn.parentElement.parentElement.remove();
+        }
+
+        // TAB BUTTONS
+        function openProfile() { window.location.href = "ads_studentprofile.html"; }
+        function openGrades() { window.location.href = "ads_viewgrades.html"; }
+        function openEnrollment() { window.location.href = "ads_enrollment.html"; }
+        function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+            function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
+            function confirmSignout() { window.location.href = "ads_login.html"; }    
+    </script>
+
+</body>
+</html>

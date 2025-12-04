@@ -196,6 +196,18 @@
             background-color: #8a1212;
         }
 
+        /* PRINT BUTTON */
+        .print-btn {
+            padding: 12px 25px;
+            background-color: #b18819;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            float: right;
+        }
+
         /* NEXT BUTTON */
         .next-btn {
             padding: 12px 25px;
@@ -206,6 +218,7 @@
             font-size: 18px;
             cursor: pointer;
             float: right;
+            margin-left: 10px;
         }
 
         /* PROGRESS BAR */
@@ -298,100 +311,6 @@
             font-weight: bold;
         }
 
-        /*SEARCH AND DROPDOWNS*/
-        .search-container {
-        top: 50%;
-        left: 40px;
-        transform: translateY(-50%);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        }
-
-        .search-input {
-            width: 300px;
-            height: 35px;
-            border-radius: 6px;
-            border: none;
-            padding: 0 12px;
-            font-size: 14px;
-            background-color: #e2e6eb;
-        }
-
-        .search-input:focus {
-            outline: 2px solid #CBCBCB;
-        }
-
-        .search-button {
-            width: 50px;
-            height: 35px;
-            border: none;
-            border-radius: 6px;
-            background-color: #CBCBCB;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .search-button img {
-            width: 28px;
-            height: 22px;
-        }
-
-        .search-button:hover {
-            background-color: #e2e6eb;
-        }
-
-            .dropdown {
-                height: 35px;
-                border: none;
-                border-radius: 6px;
-                background-color: #CBCBCB;
-                cursor: pointer;
-                font-size: 14px;
-                padding: 0 25px 0 10px; 
-                text-align: left;
-                appearance: none;
-                -webkit-appearance: none;
-                -moz-appearance: none;
-
-                background-image: url(images/dropdown.png);
-                background-repeat: no-repeat;
-                background-size: 12px 12px;
-                background-position: right 10px center; 
-            }
-
-        .dropdown:hover {
-            background-color: #e2e6eb;
-        }
-
-        .subject-dropdown {
-            width: 100px; 
-        }
-
-        .semester-dropdown {
-            width: 80px;
-        }
-
-        .dropdown-option {
-            text-align: center;
-            height: 35px;
-            padding: 0 0 50px 0; 
-        }
-
-        .noticeContainer {
-                width: 800px;
-                height: 35px;
-                text-align: center;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position:absolute;
-                right:0%;
-                color: #BF1A1A;
-                font-weight: bold;
-            }
         
         /*  SIGN OUT POP UP */
         .popup-overlay {
@@ -518,94 +437,32 @@
                     </div>
                 </div>
             </div>
-
             
             <!-- subjects for approval table -->
-            <h3>SUBJECTS FOR APPROVAL</h3>
+            <h2>OFFICIAL SCHEDULE</h2>
 
-            <table id="approvalTable">
+            <table id="scheduleTable">
                 <tr>
-                    <th>Action</th>
                     <th>SUBJECT CODE</th>
                     <th>SECTION</th> <!--di ko alam if units ba isasama dit or types-->
                     <th>SUBJECT TITLE</th>
                     <th>SCHEDULE</th> 
                 </tr>
-            </table>
-
-            
-            <p></p> 
-
-            <div class="search-container">
-
-                <!-- Search input -->
-                <input type="text" class="search-input" placeholder="Search Subject...">
-
-                <!-- Search button -->
-                <button class="search-button">
-                    <img src="images/searchLogoBtn.png" alt="Search Icon">
-                </button>
-
-                <!-- Subject Type Dropdown -->
-                <select class="dropdown subject-dropdown">
-                    <option value="">Sub Type</option>
-                    <option value="MIN">Minor</option>
-                    <option value="MAJ">Major</option>
-                </select>
-
-                <!-- Semester Dropdown -->
-                <select class="dropdown semester-dropdown">
-                    <option value="">Sem</option>
-                    <option value="1st">First</option>
-                    <option value="2nd">Second</option>
-                    <option value="Mid">Midyear</option>
-                </select>
-
-                <div class="noticeContainer">
-                        <p> NOTICE: You are not yet enrolled unless your subjects are already approved by the college department </p>
-                </div>
-
-            </div>
-
-            <!-- available subjects -->
-            <h3 style="margin-top: 30px;">AVAILABLE SUBJECTS</h3>
-            <table id="resultsTable">
-                <tr>
-                    <th>Action</th>
-                    <th>SUBJECT CODE</th>
-                    <th>SECTION</th>
-                    <th>SUBJECT TITLE</th> <!-- di ko alam if isasama ba to (based sa pics) or sundin table nila na semester ID -->
-                    <th>UNITS</th> <!-- di ko alam if isasama ba to (based sa pics) or sundin table nila na semester ID -->
-                    <th>SCHEDULE</th>
-                    <th>ROOM</th>
-                    <th>AVAILABLE SLOTS</th>
-                </tr>
 
                 <!-- sample -->
                 <tr>
-                    <td><button class="btn-add" onclick="addSubject(this)">ADD</button></td>
                     <td>CS101</td>
                     <td>1</td>
                     <td>ADS</td>
-                    <td>3</td>
                     <td>S 1:00–3:00</td>
-                    <td>GCA 307</td>
-                    <td>40</td>
                 </tr>
-                <tr>
-                    <td><button class="btn-add" onclick="addSubject(this)">ADD</button></td>
-                    <td>CS102</td>
-                    <td>1</td>
-                    <td>INFOMAN</td>
-                    <td>3</td>
-                    <td>W 1:00–3:00</td>
-                    <td>GV 301</td>
-                    <td>40</td>
-            
-                </tr>
+
             </table>
 
-            <button class="next-btn" onclick="nextStep()">NEXT</button>
+            <button class="print-btn" onclick="placeholder()">PRINT</button>
+
+
+
 
         </div>
 
@@ -623,30 +480,38 @@
     </div>
 
     <script>
-        let currentStep = 1;
-        
-        function updateProgressBar() {
-            document.querySelectorAll(".step").forEach(s => {
-                s.classList.remove("active", "completed");
-            });
 
-            if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
-            if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
-            if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+    let currentStep = 3; // Changed from 1 to 3
 
-            const line = document.getElementById("line");
-            if (currentStep === 1) line.style.width = "0%";
-            if (currentStep === 2) line.style.width = "calc(50% - 50px)";
-            if (currentStep === 3) line.style.width = "calc(100% - 100px)";
-        }
+    function updateProgressBar() {
+        document.querySelectorAll(".step").forEach(s => {
+            s.classList.remove("active", "completed");
+        });
 
-        function nextStep() { window.location.href = "ads_enrollment2.html"; if (currentStep < 3) {
+        if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
+        if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
+        if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+
+        const line = document.getElementById("line");
+        if (currentStep === 1) line.style.width = "0%";
+        if (currentStep === 2) line.style.width = "calc(50% - 50px)";
+        if (currentStep === 3) line.style.width = "calc(100% - 100px)";
+    }
+    function prevStep() { window.location.href = "ads_enrollment2.html"; if (currentStep < 3) {
                 currentStep++;
-                updateProgressBar();
+                updateProgressBar();}
             }
-        let currentStep = 1;}
 
-        updateProgressBar();
+    updateProgressBar();
+
+    // TAB BUTTONS
+    function openProfile() { window.location.href = "ads_studentprofile.html"; }
+    function openGrades() { window.location.href = "ads_viewgrades.html"; }
+    function openEnrollment() { window.location.href = "ads_enrollment.html"; }
+    function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+    function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
+    function confirmSignout() { window.location.href = "ads_login.html"; }    
+
 
         function addSubject(btn) {
             let row = btn.parentElement.parentElement;
@@ -676,12 +541,12 @@
         }
 
         // TAB BUTTONS
-        function openProfile() { window.location.href = "ads_studentprofile.html"; }
-        function openGrades() { window.location.href = "ads_viewgrades.html"; }
-        function openEnrollment() { window.location.href = "ads_enrollment.html"; }
+        function openProfile() { window.location.href = "STUDENT PROFILE.html"; }
+        function openGrades() { window.location.href = "VIEW GRADES.html"; }
+        function openEnrollment() { window.location.href = "ENROLLMENT 1.html"; }
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
             function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "ads_login.html"; }    
+            function confirmSignout() { window.location.href = "LOG IN (NO PASS).html"; }    
     </script>
 
 </body>

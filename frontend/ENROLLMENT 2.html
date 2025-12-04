@@ -196,11 +196,11 @@
             background-color: #8a1212;
         }
 
-        /* PRINT BUTTON */
-        .print-btn {
+        /* BACK BUTTON */
+        .back-btn {
             padding: 12px 25px;
-            background-color: #b18819;
-            color: white;
+            background-color: #CBCBCB;
+            color: black;
             border: none;
             border-radius: 12px;
             font-size: 18px;
@@ -208,8 +208,8 @@
             float: right;
         }
 
-        /* NEXT BUTTON */
-        .next-btn {
+        /* CONFIRM BUTTON */
+        .confirm-btn {
             padding: 12px 25px;
             background-color: #b18819;
             color: white;
@@ -439,9 +439,9 @@
             </div>
             
             <!-- subjects for approval table -->
-            <h2>OFFICIAL SCHEDULE</h2>
+            <h2>CONFIRMATION OF ENLISTED SUBJECTS</h2>
 
-            <table id="scheduleTable">
+            <table id="confirmationTable">
                 <tr>
                     <th>SUBJECT CODE</th>
                     <th>SECTION</th> <!--di ko alam if units ba isasama dit or types-->
@@ -459,7 +459,8 @@
 
             </table>
 
-            <button class="print-btn" onclick="placeholder()">PRINT</button>
+            <button class="confirm-btn" onclick="nextStep()">CONFIRM ENLISTMENT</button>
+            <button class="back-btn" onclick="prevStep()">BACK</button>
 
 
 
@@ -481,37 +482,38 @@
 
     <script>
 
-    let currentStep = 3; // Changed from 1 to 3
+            function prevStep() { window.location.href = "ENROLLMENT 1.html"; }
+            function nextStep() { window.location.href = "ENROLLMENT 2.html"; }
 
-    function updateProgressBar() {
-        document.querySelectorAll(".step").forEach(s => {
-            s.classList.remove("active", "completed");
-        });
 
-        if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
-        if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
-        if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+        let currentStep = 2;
 
-        const line = document.getElementById("line");
-        if (currentStep === 1) line.style.width = "0%";
-        if (currentStep === 2) line.style.width = "calc(50% - 50px)";
-        if (currentStep === 3) line.style.width = "calc(100% - 100px)";
-    }
-    function prevStep() { window.location.href = "ads_enrollment2.html"; if (currentStep < 3) {
+        function updateProgressBar() {
+            document.querySelectorAll(".step").forEach(s => {
+                s.classList.remove("active", "completed");
+            });
+
+            if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
+            if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
+            if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+
+            const line = document.getElementById("line");
+            if (currentStep === 1) line.style.width = "0%";
+            if (currentStep === 2) line.style.width = "calc(50% - 50px)";
+            if (currentStep === 3) line.style.width = "calc(100% - 100px)";
+        }
+        function prevStep() { window.location.href = "ENROLLMENT 1.html"; if (currentStep < 3) {
                 currentStep++;
                 updateProgressBar();}
+        } 
+
+        function nextStep() { window.location.href = "ENROLLMENT 3.html"; if (currentStep < 3) {
+                currentStep++;
+                updateProgressBar();
             }
+        }
 
-    updateProgressBar();
-
-    // TAB BUTTONS
-    function openProfile() { window.location.href = "ads_studentprofile.html"; }
-    function openGrades() { window.location.href = "ads_viewgrades.html"; }
-    function openEnrollment() { window.location.href = "ads_enrollment.html"; }
-    function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
-    function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-    function confirmSignout() { window.location.href = "ads_login.html"; }    
-
+        updateProgressBar();
 
         function addSubject(btn) {
             let row = btn.parentElement.parentElement;
@@ -541,12 +543,12 @@
         }
 
         // TAB BUTTONS
-        function openProfile() { window.location.href = "ads_studentprofile.html"; }
-        function openGrades() { window.location.href = "ads_viewgrades.html"; }
-        function openEnrollment() { window.location.href = "ads_enrollment.html"; }
+        function openProfile() { window.location.href = "STUDENT PROFILE.html"; }
+        function openGrades() { window.location.href = "VIEW GRADES.html"; }
+        function openEnrollment() { window.location.href = "ENROLLMENT 1.html"; }
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
             function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "ads_login.html"; }    
+            function confirmSignout() { window.location.href = "LOG IN (NO PASS).html"; }    
     </script>
 
 </body>

@@ -1,0 +1,60 @@
+[ INTEGRATION ]
+
+PROCESS - connect Oracle (v19) to PHP via Xampp
+
+video source: https://www.youtube.com/watch?app=desktop&v=f8NBmBkheC8
+
+OPEN Xampp --> CLICK Config of Apache Module --> php.ini -->
+
+--- ALTERNATIVELY, OPEN C://xampp/php/php.ini ---
+
+SEARCH for oracle, look for ';extension=oci8_19'
+REMOVE the semicolon at the start of the line to 'ACTIVATE' the extension for php
+
+INSTALL Oracle Instant Client for your PC Windows Architecture --> Version 19 Basic Package
+EXTRACT the zip file --> ENTER folder --> COPY the instantclient_19 file to C://
+
+COPY the filepath once the file is pasted into C://
+
+OPEN Control Panel --> Advanced System Settings --> Environment Variables
+CLICK 'Path' Variable --> Edit --> New --> PASTE filepath here
+CLOSE the windows of Control Panel with 'OK' --> EXIT
+
+START Apache Module in Xampp. STOP and IGNORE any error messages
+
+OPEN instantclient_19 file
+COPY the following: oci.dll, oraciei19.dll, oraons.dll
+
+OPEN Xampp's file directory (also in C://) --> Folder 'Apache' --> Folder 'bin'
+PASTE the files from instantclient (replace files in destination if prompted)
+
+OPEN Xampp --> start Apache --> CLICK Admin --> OPENS Admin Dashboard
+CLICK PHPInfo --> VERIFY IF OCI8 has its own category of table entries for technical stuff
+
+OPEN Xampp file directory --> Folder 'htdocs' --> INSERT a .php file
+
+
+--- SAMPLE testdatabase.php file below to see if your Oracle connection 
+--- is linked to Xampp Apache:
+
+
+<?php
+/* PHP & Oracle DB Conenction file */
+$user = "ads"; //Oracle Username
+$pass = "ads"; //Oracle Password
+$host = "localhost/XE"; //Server name or ip address in Oracle Connection Properties
+$dbconn = oci_connect($user, $pass, $host);
+if (!$dbconn) {
+    $e = oci_error(); trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+} else {
+    echo "ORACLE DATABASE CONNECTED SUCCESSFULLY!!!"; //removable debug message
+}
+?>
+
+
+On a browser, open localhost/[INSERT php filename here]
+Using the php script in this text file with the name testdatabase.php, it should output:
+
+--- ORACLE DATABASE CONNECTED SUCCESSFULLY!!!
+
+if not, there was an error in oracle and oracle instant client compatibility

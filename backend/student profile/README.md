@@ -4,17 +4,17 @@ NOTES:
 
 Currently enrolled subjects work by:
 
-  1. Identify the Current Semester ID 🗓️
+  1. Identify the Current Semester ID 
   The script first checks the semester table.
   It looks for the record where today's date falls between the date_start and date_end.
   This determines the sem_id (e.g., S-2025-2).
   
-  2. Get the Subject Code 📅
+  2. Get the Subject Code 
   The script uses the sem_id found in Step 1 to search the schedule table.
   It retrieves all the entries (courses, times, etc.) that match that specific sem_id.
   From those entries, it isolates the sub_code (e.g., CS-201).
   
-  3. Retrieve the Subject Name 📘
+  3. Retrieve the Subject Name 
   The script uses the sub_code found in Step 2 to search the subjects table.
   It finds the single entry that matches that specific sub_code.
   From that entry, it pulls the corresponding subject name (e.g., "Data Structures and Algorithms").

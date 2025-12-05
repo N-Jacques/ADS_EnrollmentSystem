@@ -224,6 +224,29 @@
         .cancel-btn:hover { 
             background-color: #e2e6eb; 
         }
+             /* TABLES */
+        table {
+            max-width: 100%;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #BF1A1A;
+            color: white;
+            padding: 8px;
+        }
+
+        td {
+            padding: 8px;
+            background: #f7f7f7;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
     
 </style>
 
@@ -273,6 +296,26 @@
                     <img src="https://i.pinimg.com/originals/ad/73/1c/ad731cd0da0641bb16090f25778ef0fd.jpg?fbclid=IwY2xjawOcx4NleHRuA2FlbQIxMQBzcnRjBmFwcF9pZAEwAAEeNHq49yNbtWnzz09Ul-SFOpVkL5rW997QIPwSi3jdDezlC8X66BpBrP-7TKw_aem_iKA067Kn9JYsTsYNB5hovw" alt="Photo Placeholder">
                 </div>
             </div>
+
+            <hr>
+
+            <!-- subjects enrolled for current semester -->
+            <h3 style="text-align: center;">SUBJECTS ENROLLED FOR CURRENT SEMESTER</h3>
+
+            <table id="subjectsEnrolledTable">
+                <tr>
+                    <th>SUBJECT CODE</th>
+                    <th>SECTION</th> 
+                    <th>SUBJECT TITLE</th>
+                </tr>
+
+                <!-- sample -->
+                <tr>
+                    <td>ADS001</td>
+                    <td>1</td>
+                    <td>ADVANCE DATABASE</td>
+                </tr>
+            </table>
         </div>
         
 

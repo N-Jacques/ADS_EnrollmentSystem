@@ -640,7 +640,7 @@
             if (currentStep === 3) line.style.width = "calc(100% - 100px)";
         }
 
-        function nextStep() { window.location.href = "ENROLLMENT 2.html"; if (currentStep < 3) {
+        function nextStep() { window.location.href = "enrollment_2.html"; if (currentStep < 3) {
                 currentStep++;
                 updateProgressBar();
             }
@@ -676,12 +676,12 @@
         }
 
         // TAB BUTTONS
-        function openProfile() { window.location.href = "STUDENT PROFILE.html"; }
-        function openGrades() { window.location.href = "VIEW GRADES.html"; }
-        function openEnrollment() { window.location.href = "ENROLLMENT 1.html"; }
+        function openProfile() { window.location.href = "studentProfile.html"; }
+        function openGrades() { window.location.href = "viewGrades.html"; }
+        function openEnrollment() { window.location.href = "enrollment_1.html"; }
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
             function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "LOG IN (NO PASS).html"; }    
+            function confirmSignout() { window.location.href = "logIn_noPass.html"; }    
     </script>
 
 </body>

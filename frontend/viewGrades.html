@@ -184,7 +184,7 @@
                 -webkit-appearance: none;
                 -moz-appearance: none;
 
-                background-image: url(images/dropdown.png);
+                background-image: url(../assets/dropdown.png);
                 background-repeat: no-repeat;
                 background-size: 12px 12px;
                 background-position: right 10px center; 
@@ -290,7 +290,6 @@
         <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>  
 
         <div class="tabsBtn">
-            <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
             <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
             <button style = "color:#b18819" class="tabs-btn" onclick="openGrades()">View Grades</button>
             <button class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
@@ -367,7 +366,7 @@
         function openEnrollment() { window.location.href = "enrollment_1.html"; }
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
             function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "logIn_noPass.html"; }      
+            function confirmSignout() { window.location.href = "logIn_wPass.html"; }      
             
     </script>
 

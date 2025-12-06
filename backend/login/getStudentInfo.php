@@ -39,14 +39,17 @@ try {
     // 3. QUERY with JOINS
     // Backticks added to handle reserved keywords like `status`
     $sql = "SELECT 
-                students.*, 
-                credentials.student_id as cred_id,
-                programs.program_name,
-                `status`.status_name
+                students.* 
+                , credentials.student_id as cred_id
+                , programs.program_name
+                , `status`.status_name
             FROM `students` 
-            INNER JOIN `credentials` ON `students`.student_id = `credentials`.student_id 
-            LEFT JOIN `programs` ON `students`.program_id = `programs`.program_id
-            LEFT JOIN `status` ON `students`.status_id = `status`.status_id
+            INNER JOIN `credentials` 
+                ON `students`.student_id = `credentials`.student_id 
+            LEFT JOIN `programs` 
+                ON `students`.program_id = `programs`.program_id
+            LEFT JOIN `status` 
+                ON `students`.status_id = `status`.status_id
             WHERE `students`.student_id = :student_id";
 
     $stmt = $conn->prepare($sql);

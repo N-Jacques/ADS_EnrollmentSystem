@@ -367,8 +367,7 @@ const semesterMap = {
 };
 
 /* ============================================
-   LOAD GRADES VIA AJAX
-   Fetch grades dynamically based on selected year & semester
+   LOAD GRADES based on selected year & semester
 ============================================ */
 function loadGrades() {
     const yearValue = document.getElementById("schoolyearDropdown").value;
@@ -424,7 +423,6 @@ function loadGrades() {
 
 /* ============================================
    FILTER GRADES BY SEARCH INPUT
-   Filters visible rows by subject code or title
 ============================================ */
 function filterGrades() {
     const searchValue = document.getElementById("searchInput").value.toLowerCase();

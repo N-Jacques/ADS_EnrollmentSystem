@@ -482,8 +482,8 @@
 
     <script>
 
-            function prevStep() { window.location.href = "ENROLLMENT 1.html"; }
-            function nextStep() { window.location.href = "ENROLLMENT 2.html"; }
+            function prevStep() { window.location.href = "ENROLLMENT_1.html"; }
+            function nextStep() { window.location.href = "ENROLLMENT_2.html"; }
 
 
         let currentStep = 2;
@@ -502,12 +502,12 @@
             if (currentStep === 2) line.style.width = "calc(50% - 50px)";
             if (currentStep === 3) line.style.width = "calc(100% - 100px)";
         }
-        function prevStep() { window.location.href = "ENROLLMENT 1.html"; if (currentStep < 3) {
+        function prevStep() { window.location.href = "ENROLLMENT_1.html"; if (currentStep < 3) {
                 currentStep++;
                 updateProgressBar();}
         } 
 
-        function nextStep() { window.location.href = "ENROLLMENT 3.html"; if (currentStep < 3) {
+        function nextStep() { window.location.href = "ENROLLMENT_3.html"; if (currentStep < 3) {
                 currentStep++;
                 updateProgressBar();
             }

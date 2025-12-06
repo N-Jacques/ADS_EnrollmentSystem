@@ -57,9 +57,9 @@ if (!$rows) {
 
         // Determine remarks
         if ($grade >= 1.00 && $grade <= 3.00) {
-            $remarks = "Pass";
+            $remarks = "Passed";
         } elseif ($grade == 5.00) {
-            $remarks = "Fail";
+            $remarks = "Failed";
         } else {
             $remarks = "-";
         }
@@ -74,3 +74,4 @@ if (!$rows) {
 }
 
 ?>
+

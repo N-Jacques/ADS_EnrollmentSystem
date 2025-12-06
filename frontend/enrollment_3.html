@@ -474,13 +474,13 @@
                 button class="print-btn" onclick="placeholder()">PRINT</button>-->
 
             <form id="printForm" action = "/ADS_Final_Project/backend/enrollment/cursor-preview-regform.php"
-              method = "POST">
+              method = "GET">
             <!--
                 // HELP: Simulate session student_id and sem_id being fetched (integrate later)
                 // Reason: di ko alam kung paano nakasave yung data sa prev step(s)
             -->
-                <input type="hidden" name="student_id" id="formStudentID">
-                <input type="hidden" name="sem_id" id="formSemID">
+                <input type="hidden" name="student_id" id="formStudentID" value="202336039">
+                <input type="hidden" name="sem_id" id="formSemID" value="20252">
 
                 <button class="print-btn">PRINT</button> 
         </form>
@@ -508,8 +508,9 @@
         // Reason: di ko alam kung paano nakasave yung data sa prev step(s)
         const studentId = "202336039";
         const semId = "20252";
-        document.getElementById("formStudentID").value = studentId;
-        document.getElementById("formSemID").value = semId;
+        const student_id = document.getElementById("formStudentID").value;
+        const sem_id = document.getElementById("formSemID").value;
+        
 
     //event listener for page to load view data to table
     document.addEventListener("DOMContentLoaded", function() {
@@ -546,245 +547,43 @@
 
 //event listener for print button submission
 document.getElementById("printForm").addEventListener("submit", function(e) {
-    e.preventDefault(); // stop page from navigating
+    e.preventDefault(); // stop normal submission
 
+    const student_id = document.getElementById("formStudentID").value;
+    const sem_id = document.getElementById("formSemID").value;
+
+    // Fetch PDF as a blob
     fetch(this.action, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            student_id: document.getElementById("formStudentID").value,
-            sem_id: document.getElementById("formSemID").value
-        })
+        body: JSON.stringify({ student_id, sem_id })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.error) {
-            console.error("Error fetching regform data:", data.error);
-            return;
-        }
-        openPrintPreview(data);
+    .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.blob(); // binary PDF
     })
-    .catch(err => console.error("Fetch error:", err));
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+
+        // Create iframe for preview + print
+        const iframe = document.createElement("iframe");
+        iframe.style.position = "fixed";
+        iframe.style.right = "0";
+        iframe.style.bottom = "0";
+        iframe.style.width = "0";
+        iframe.style.height = "0";
+        iframe.style.border = "0";
+        iframe.src = url;
+
+        document.body.appendChild(iframe);
+
+        iframe.onload = function() {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        };
+    })
+    .catch(err => console.error("Print fetch error:", err));
 });
-
-// Function: create a print layout of SER form
-function openPrintPreview(data) {
-    const container = document.getElementById("printContainer");
-
-    // Combine schedules for same subject into a single row
-    const subjectsMap = {};
-    data.subjects.forEach(s => {
-        const key = s.sub_code + '|' + s.section;
-        if (!subjectsMap[key]) {
-            subjectsMap[key] = {
-                sub_code: s.sub_code,
-                subject_title: s.subject_title,
-                units: s.units,
-                section: s.section,
-                schedule: [],
-                rooms:new Set()
-            };
-        }
-        if (s.day_name) {
-            subjectsMap[key].schedule.push(`${s.day_name} ${s.time_start}–${s.time_end}`);
-        }
-        if (s.room) {
-            subjectsMap[key].rooms.add(s.room);
-        }
-    });
-
-    const subjectRows = Object.values(subjectsMap).map(s => `
-        <tr>
-            <td>${s.sub_code}</td>
-            <td>${s.subject_title}</td>
-            <td>${s.units}</td>
-            <td>${s.section}</td>
-            <td>${s.schedule.join(', ')}</td>
-            <td>${[...s.rooms].join(', ')}</td>
-        </tr>
-    `).join('');
-
-container.innerHTML = `
-    <style>
-        @media print {
-
-            /* Force background colors to appear when printing */
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-
-            body {
-                background: white !important;
-                font-family: 'Times New Roman', serif;
-            }
-
-            .print-header {
-                display: flex;
-                align-items: center;    /* vertically center logo & text */
-                justify-content: center;
-                gap: 15px;              /* space between logo and school name */
-            }
-
-            .print-header h1 {
-                margin: 0;
-                font-size: 22px;
-                font-family: 'Times New Roman';
-                color: #b18819;
-                font-weight: bold;
-            }
-
-            .print-header-row h1 {
-                display: flex;
-                text-align: center;
-                align-items: center;
-                font-size: 22px;
-                font-family: 'Times New Roman';
-                font-weight: normal;
-                color: #000;
-            }
-
-            .print-header img {
-                width: 60px;
-                height: 60px;
-            }
-
-            .info-box {
-                background: #ffffff;
-                padding: 18px 25px;
-                border-radius: 15px;
-                box-shadow: 0px 1px 6px #00000033;
-                margin-bottom: 20px;
-                font-size: 16px;
-            }
-
-            /* 2-Column Student Info Layout */
-            .info-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                column-gap: 40px;
-                row-gap: 10px;
-            }
-
-            .info-item span {
-                font-weight: bold;
-            }
-
-            .info-item.course-row, .info-item.college-row {
-                grid-column: 1 / span 2 !important;
-                text-align: left !important;
-            }
-
-            .print-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 15px;
-                font-size: 15px;
-            }
-
-            .print-table thead th {
-                background-color: #ffffff !important;
-                color: #000000 !important;
-                border: 2px solid #000 !important;
-                border-bottom: 2px solid #000 !important;
-            }
-
-            /* Remove inner borders between header cells */
-            .print-table thead th:not(:first-child) {
-                border-left: none !important;
-            }
-            .print-table td {
-                background: #f7f7f7;
-                padding: 8px;
-                text-align: center;
-
-                border-left: 1px solid #ccc;
-                border-right: 1px solid #ccc;
-
-                /* Remove horizontal lines */
-                border-top: none !important;
-                border-bottom: none !important;
-            }
-
-            .print-table tbody tr:first-child td {
-                border-top: 2px solid #000 !important;
-            }
-                    }
-    </style>
-
-    <div class="print-form">
-
-        <!-- Header -->
-        <div class="print-header">
-                <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" />
-                <h1>PAMANTASAN NG LUNGSOD NG MAYNILA</h1>
-        </div>
-        <div class="print-header">
-            <div class="print-header-row">     
-                <h1>Student Registration Form</h1>
-            </div>
-        </div>
-
-        <!-- Student Info Box -->
-        <div class="info-box">
-            <div class="info-grid">
-
-                <div class="info-item">
-                    <span>Name:</span> ${data.header.full_name}
-                </div>
-
-                <div class="info-item">
-                    <span>Student ID:</span> ${data.header.student_id}
-                </div>
-
-                <div class="info-item">
-                    <span>Semester:</span> ${data.header.sem_id}
-                </div>
-                
-                <div class="info-item">
-                    <span>Student Type:</span> ${data.header.student_type}
-                </div>
-
-                <div class="info-item college-row">
-                    <span>College:</span> ${data.header.college}
-                </div> 
-
-                <div class="info-item course-row">
-                    <span>Course:</span> ${data.header.course}
-                </div>
-
-                <div class="info-item">
-                    <span>Year Level:</span> ${data.header.year_level}
-                </div>
-
-      
-                
-
-
-            </div>
-        </div>
-
-        <!-- Schedule Table -->
-        <table class="print-table">
-            <thead>
-                <tr>
-                    <th>Code</th>
-                    <th>Title</th>
-                    <th>Units</th>
-                    <th>Section</th>
-                    <th>Schedule</th>
-                    <th>Room</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${subjectRows}
-            </tbody>
-        </table>
-
-    </div>
-`;
-
-
-    window.print();
-}
 
 
     let currentStep = 3; // Changed from 1 to 3

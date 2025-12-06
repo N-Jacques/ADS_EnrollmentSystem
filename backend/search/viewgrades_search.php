@@ -15,7 +15,7 @@ if (empty($semester_array)) {
 
 // Database connection
 $host = 'localhost';
-$dbname = 'ads';
+$dbname = 'adsDB';
 $username = 'root';
 $password = '';
 
@@ -72,4 +72,5 @@ if (!$rows) {
               </tr>";
     }
 }
+
 ?>

@@ -45,6 +45,7 @@ try {
             stu.yrlevel AS year_level,
             pr.program_name AS course,
             cl.college_name AS college,
+            stt.status_name AS student_type, 
 
             en.enlistment_id,
             en.date_created AS enlistment_date,
@@ -71,6 +72,8 @@ try {
             ON pr.program_id = stu.program_id
         JOIN colleges cl
             ON cl.college_id = pr.college_id
+        JOIN status stt
+            ON stt.status_id = stu.status_id   
         JOIN semester sem
             ON sem.sem_id = en.sem_id
         JOIN enlisted_subjects es
@@ -107,6 +110,7 @@ try {
                 'year_level' => $row['year_level'],
                 'course' => $row['course'],
                 'college' => $row['college'],
+                'student_type' => $row['student_type'], 
                 'enlistment_id' => $row['enlistment_id'],
                 'enlistment_date' => $row['enlistment_date'],
                 'sem_id' => $row['sem_id'],

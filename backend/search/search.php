@@ -1,142 +1,84 @@
 <?php
-$host = 'localhost';
-$dbname = 'ads';
-$username = 'root';
-$password = '';
+include '../connection.php';
+header('Content-Type: text/html');
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+$query = $_POST['query'] ?? '';
+$subtype = $_POST['subtype'] ?? '';
+$semester = $_POST['semester'] ?? '20251'; 
 
-// Get search term and filters
-$search = $_POST['query'] ?? '';
-$searchTerm = "%" . $search . "%";
-$subtypeFilter = $_POST['subtype'] ?? '';
-$semesterFilter = $_POST['semester'] ?? '';
-
-// Fetch all schedules for matching subjects
 $sql = "
 SELECT 
-    s.sub_code,
-    s.title,
-    st.subtype_id AS subtype,
-    s.units,
-    sc.section,
-    sc.sem_id AS semester,
-    sc.day_id,
-    sc.time_start,
-    sc.time_end,
-    sc.room,
-    sc.slots
+    s.sub_code, s.title, s.units, sc.section, 
+    sc.sem_id, dd.day_name, sc.time_start, sc.time_end, sc.room, sc.slots
 FROM subjects s
 LEFT JOIN subject_type st ON s.subtype_id = st.subtype_id
 LEFT JOIN schedule sc ON s.sub_code = sc.sub_code
-WHERE (s.sub_code LIKE :search OR s.title LIKE :search)
-AND sc.slots > 0
+LEFT JOIN day_details dd ON sc.day_id = dd.day_id
+WHERE (s.sub_code LIKE ? OR s.title LIKE ?)
+AND sc.sem_id = ?
 ";
 
-if(!empty($subtypeFilter)) {
-    $sql .= " AND st.subtype_id = :subtype";
+$sql_types = "sss";
+$params = ["%$query%", "%$query%", $semester];
+
+if (!empty($subtype)) {
+    $sql .= " AND st.subtype_id = ?";
+    $sql_types .= "s";
+    $params[] = $subtype;
 }
 
-if(!empty($semesterFilter)) {
-    $sql .= " AND sc.sem_id = :semester";
-}
+$sql .= " ORDER BY s.sub_code, sc.section";
 
-$sql .= " ORDER BY s.sub_code, sc.section, sc.day_id, sc.time_start";
+$stmt = execute_query($conn, $sql, $sql_types, $params);
+$result = $stmt ? $stmt->get_result() : false;
 
-$stmt = $conn->prepare($sql);
-$stmt->bindParam(":search", $searchTerm, PDO::PARAM_STR);
-
-if(!empty($subtypeFilter)) {
-    $stmt->bindParam(":subtype", $subtypeFilter, PDO::PARAM_STR);
-}
-if(!empty($semesterFilter)) {
-    $stmt->bindParam(":semester", $semesterFilter, PDO::PARAM_STR);
-}
-
-$stmt->execute();
-
-// Group schedules by subject code
 $subjects = [];
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $sub_code = $row['sub_code'];
-    if (!isset($subjects[$sub_code])) {
-        $subjects[$sub_code] = [
-            'sub_code' => $sub_code,
-            'title' => $row['title'],
-            'subtype' => $row['subtype'],
-            'units' => $row['units'],
-            'semester' => $row['semester'],
-            'schedules' => []
-        ];
+while ($row = $result->fetch_assoc()) {
+    $key = $row['sub_code'] . '-' . $row['section'];
+    if (!isset($subjects[$key])) {
+        $subjects[$key] = $row;
+        $subjects[$key]['schedule_text'] = [];
     }
-    $subjects[$sub_code]['schedules'][] = [
-        'section' => $row['section'],
-        'day_time' => $row['day_id'] . ' ' . $row['time_start'] . '–' . $row['time_end'],
-        'room' => $row['room'],
-        'slots' => $row['slots']
-    ];
+    $subjects[$key]['schedule_text'][] = $row['day_name'] . " " . $row['time_start'] . "-" . $row['time_end'];
 }
 
-// Output table rows
-foreach ($subjects as $subject) {
-    $subtype = htmlspecialchars($subject['subtype']);
-    $semester = htmlspecialchars($subject['semester']);
-    $sub_code = htmlspecialchars($subject['sub_code']);
-    $title = htmlspecialchars($subject['title']);
-    $units = (int)$subject['units'];
+$output = "";
+if (empty($subjects)) {
+    $output = "<tr><td colspan='8'>No subjects found.</td></tr>";
+} else {
+    foreach ($subjects as $sub) {
+        $sched = implode(" / ", $sub['schedule_text']);
+        $isFull = $sub['slots'] <= 0;
+        
+        $btnClass = $isFull ? 'btn-disabled' : 'btn-add';
+        $btnText = $isFull ? 'FULL' : 'ADD';
+        $action = $isFull ? 'disabled' : "onclick=\"addSubject(this)\"";
 
-// Main row (one per subject, no units)
-echo "<tr class='subject-row' data-subtype='$subtype' data-semester='$semester'>
-        <td><button class='toggle-schedules'>+</button></td>
-        <td>$sub_code</td>
-        <td colspan='6'>$title</td>
-      </tr>";
-
-
-// Hidden schedule rows
-foreach ($subject['schedules'] as $sched) {
-    $section = htmlspecialchars($sched['section']);
-    $day_time = htmlspecialchars($sched['day_time']);
-    $room = htmlspecialchars($sched['room']);
-    $slots = (int)$sched['slots'];
-    $units = (int)$subject['units']; // add units here
-
-    echo "<tr class='schedule-row' style='display:none;' 
-            data-code='$sub_code' 
-            data-section='$section' 
-            data-title='$title' 
-            data-units='$units'
-            data-daytime='$day_time' 
-            data-room='$room' 
-            data-slots='$slots'>
-            <td><button class='btn-add' onclick='addScheduleToApproval(this)'>ADD</button></td>
-            <td>$sub_code</td>
-            <td>$section</td>
-            <td>$title</td>
-            <td>$units</td>
-            <td>$day_time</td>
-            <td>$room</td>
-            <td>$slots</td>
+        $output .= "
+        <tr>
+            <td>
+                <button class='{$btnClass}' 
+                    data-code='{$sub['sub_code']}'
+                    data-section='{$sub['section']}'
+                    data-title='{$sub['title']}'
+                    data-units='{$sub['units']}'
+                    data-schedule='{$sched}'
+                    data-slots='{$sub['slots']}'
+                    {$action}>
+                    {$btnText}
+                </button>
+            </td>
+            <td>{$sub['sub_code']}</td>
+            <td>{$sub['section']}</td>
+            <td>{$sub['title']}</td>
+            <td>{$sub['units']}</td>
+            <td>{$sched}</td>
+            <td>{$sub['room']}</td>
+            <td>{$sub['slots']}</td>
         </tr>";
-
+    }
 }
 
-
-}
+if ($stmt) $stmt->close();
+echo $output;
 ?>
-Footer
-© 2025 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Community
-Docs
-Contact
-Manage cookies

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Student Enrollment</title>
+    <link rel="stylesheet" href="ads-css.css">
 </head>
 
 <style>
@@ -385,86 +386,68 @@
 </style>
 
 <body>
-    
-    <!-- HEADER -->
-    <div class = "header">
-        <img src = "https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
-        <p>PAMANTASAN NG LUNGSOD NG MAYNILA
-        </p>  
 
-        <div class = "tabsBtn">
+    <!-- Hidden inputs for student_id and sem_id -->
+    <input type="hidden" id="student_id">
+    <input type="hidden" id="sem_id" value="20251">
+
+    <!-- HEADER -->
+    <div class="header">
+        <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
+        <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>  
+
+        <div class="tabsBtn">
+            <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
             <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
             <button class="tabs-btn" onclick="openGrades()">View Grades</button>
-            <button style = "color:#b18819" class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
+            <button style="color:#b18819" class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
             <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
         </div>
     </div>
 
     <div class="name-panel">
-
         <span class="clickable-name" onclick="openProfile()">
             Dela Cruz, Juan A.
         </span>
-
         <span class="student-number">(202312345)</span>
-
-
     </div>
         
     <!-- MAIN PANEL -->
-        <div class="container">
-            <!-- for progress bar -->
-            <div class="progress-container">
-                <div class="line-bg"></div>
-                <div class="line-fill" id="line"></div>
+    <div class="container">
+        <div class="progress-container">
+            <div class="line-bg"></div>
+            <div class="line-fill" id="line"></div>
 
-                <div class="steps">
-                    <div class="step" id="step1">
-                        <div class="circle">1</div>
-                        <div class="label">SUBJECT ENLISTMENT</div>
-                    </div>
-
-                    <div class="step" id="step2">
-                        <div class="circle">2</div>
-                        <div class="label">CONFIRM ENROLLMENT</div>
-                    </div>
-
-                    <div class="step" id="step3">
-                        <div class="circle">3</div>
-                        <div class="label">VIEW SCHEDULE</div>
-                    </div>
+            <div class="steps">
+                <div class="step" id="step1">
+                    <div class="circle">1</div>
+                    <div class="label">SUBJECT ENLISTMENT</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="circle">2</div>
+                    <div class="label">CONFIRM ENROLLMENT</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="circle">3</div>
+                    <div class="label">VIEW SCHEDULE</div>
                 </div>
             </div>
-            
-            <!-- subjects for approval table -->
-            <h2>CONFIRMATION OF ENLISTED SUBJECTS</h2>
-
-            <table id="confirmationTable">
-                <tr>
-                    <th>SUBJECT CODE</th>
-                    <th>SECTION</th> <!--di ko alam if units ba isasama dit or types-->
-                    <th>SUBJECT TITLE</th>
-                    <th>SCHEDULE</th> 
-                </tr>
-
-                <!-- sample -->
-                <tr>
-                    <td>CS101</td>
-                    <td>1</td>
-                    <td>ADS</td>
-                    <td>S 1:00–3:00</td>
-                </tr>
-
-            </table>
-
-            <button class="confirm-btn" onclick="nextStep()">CONFIRM ENLISTMENT</button>
-            <button class="back-btn" onclick="prevStep()">BACK</button>
-
-
-
-
         </div>
+            
+        <h2>CONFIRMATION OF ENLISTED SUBJECTS</h2>
 
+        <table id="confirmationTable">
+            <tr>
+                <th>SUBJECT CODE</th>
+                <th>SECTION</th>
+                <th>SUBJECT TITLE</th>
+                <th>SCHEDULE</th> 
+            </tr>
+        </table>
+
+        <button class="confirm-btn" onclick="nextStep()">CONFIRM ENLISTMENT</button>
+        <button class="back-btn" onclick="prevStep()">BACK</button>
+    </div>
 
     <!-- SIGN OUT POPUP -->
     <div class="popup-overlay" id="signoutPopup">
@@ -472,82 +455,113 @@
             <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
             <h3>Sign out?</h3>
             <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
-
             <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
             <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
         </div>
     </div>
 
-    <script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // ✅ Set student_id from localStorage (or fallback)
+    const studentInput = document.getElementById("student_id");
+    const savedStudentId = localStorage.getItem("student_id");
+    if (savedStudentId) {
+        studentInput.value = savedStudentId;
+        document.querySelector(".student-number").textContent = `(${savedStudentId})`;
+    } else {
+        // fallback (make sure this exists in DB)
+        studentInput.value = "202250051"; 
+        document.querySelector(".student-number").textContent = "(202250051)";
+    }
 
-            function prevStep() { window.location.href = "ENROLLMENT 1.html"; }
-            function nextStep() { window.location.href = "ENROLLMENT 2.html"; }
+    // Populate subjects table from localStorage
+    const subjects = JSON.parse(localStorage.getItem("enlistedSubjects")) || [];
+    const table = document.getElementById("confirmationTable");
 
+    subjects.forEach(sub => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${sub.code}</td>
+            <td>${sub.section}</td>
+            <td>${sub.title}</td>
+            <td>${sub.schedule}</td>
+        `;
+        table.appendChild(row);
+    });
+});
 
-        let currentStep = 2;
+let currentStep = 2;
 
-        function updateProgressBar() {
-            document.querySelectorAll(".step").forEach(s => {
-                s.classList.remove("active", "completed");
-            });
+function updateProgressBar() {
+    document.querySelectorAll(".step").forEach(s => {
+        s.classList.remove("active", "completed");
+    });
 
-            if (currentStep >= 1) document.getElementById("step1").classList.add(currentStep == 1 ? "active" : "completed");
-            if (currentStep >= 2) document.getElementById("step2").classList.add(currentStep == 2 ? "active" : "completed");
-            if (currentStep >= 3) document.getElementById("step3").classList.add(currentStep == 3 ? "active" : "completed");
+    if (currentStep >= 1)
+        document.getElementById("step1").classList.add(currentStep === 1 ? "active" : "completed");
+    if (currentStep >= 2)
+        document.getElementById("step2").classList.add(currentStep === 2 ? "active" : "completed");
+    if (currentStep >= 3)
+        document.getElementById("step3").classList.add(currentStep === 3 ? "active" : "completed");
 
-            const line = document.getElementById("line");
-            if (currentStep === 1) line.style.width = "0%";
-            if (currentStep === 2) line.style.width = "calc(50% - 50px)";
-            if (currentStep === 3) line.style.width = "calc(100% - 100px)";
+    const line = document.getElementById("line");
+    line.style.width = currentStep === 1 ? "0%" : currentStep === 2 ? "calc(50% - 50px)" : "calc(100% - 100px)";
+}
+
+updateProgressBar();
+
+function prevStep() {  
+    window.location.href = "enrollment_1.html";  
+}
+
+async function nextStep() {
+    const student_id = document.getElementById("student_id").value;
+    const sem_id = document.getElementById("sem_id").value;
+    const subjects = JSON.parse(localStorage.getItem("enlistedSubjects")) || [];
+
+    if (!student_id) {
+        alert("Student ID is missing!");
+        return;
+    }
+
+    if (subjects.length === 0) {
+        alert("No subjects enlisted.");
+        return;
+    }
+
+    const payload = { student_id, sem_id, subjects };
+    console.log("SENDING PAYLOAD:", payload);
+
+    try {
+        const response = await fetch("http://localhost/ADS_FINAL_PROJECT/backend/enrollment/final_register.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        console.log("SERVER RESPONSE:", result);
+
+        if (result.success) {
+            alert("Enrollment successful!");
+            window.location.href = "enrollment_3.html";
+        } else {
+            alert("ERROR: " + result.error);
         }
-        function prevStep() { window.location.href = "ENROLLMENT 1.html"; if (currentStep < 3) {
-                currentStep++;
-                updateProgressBar();}
-        } 
+    } catch (error) {
+        console.error("REQUEST FAILED:", error);
+        alert("Failed to connect to the server.");
+    }
+}
 
-        function nextStep() { window.location.href = "ENROLLMENT 3.html"; if (currentStep < 3) {
-                currentStep++;
-                updateProgressBar();
-            }
-        }
+function openProfile() { window.location.href = "studentProfile.html"; }
+function openGrades() { window.location.href = "viewGrades.html"; }
+function openEnrollment() { window.location.href = "enrollment_1.html"; }
 
-        updateProgressBar();
-
-        function addSubject(btn) {
-            let row = btn.parentElement.parentElement;
-            
-            // pangkuha data sa tables para malagay sa approval table.
-            let subjectCode = row.cells[1].textContent;
-            let section = row.cells[2].textContent;
-            let subjectTitle = row.cells[3].textContent;
-            let schedule = row.cells[5].textContent;
-            
-            // approval table
-            let newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td><button class='btn-remove' onclick='removeSubject(this)'>REMOVE</button></td>
-                <td>${subjectCode}</td>
-                <td>${section}</td>
-                <td>${subjectTitle}</td>
-                <td>${schedule}</td>
-            `;
-            
-            document.getElementById("approvalTable").appendChild(newRow);
-        }
-
-        /* remove subject */
-        function removeSubject(btn) {
-            btn.parentElement.parentElement.remove();
-        }
-
-        // TAB BUTTONS
-        function openProfile() { window.location.href = "studentProfile.html"; }
-        function openGrades() { window.location.href = "viewGrades.html"; }
-        function openEnrollment() { window.location.href = "enrollment_1.html"; }
-        function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
-            function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "logIn_wPass.html"; }    
-    </script>
+function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
+function confirmSignout() { window.location.href = "logIn_wPass.html"; }
+</script>
 
 </body>
 </html>

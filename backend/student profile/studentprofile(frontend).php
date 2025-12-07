@@ -1,9 +1,15 @@
+<?php 
+// This must be at the top of the file to ensure variables are defined
+require 'studentprofile.php'; 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Student Enrollment</title>
+    <link rel="stylesheet" href="ads-css.css">
 </head>
 
 <style>
@@ -244,18 +250,19 @@
             padding: 8px;
             background: #f7f7f7;
             border-bottom: 1px solid #ccc;
-            text-align: center;
+            text-align: left;
         }
     
 </style>
 
 <body>
-    
+
     <div class="header">
         <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
         <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>  
-        <!-- HEADER TABS -->
+
         <div class="tabsBtn">
+            <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
             <button style = "color:#b18819" class="tabs-btn" onclick="openProfile()">Student Profile</button>
             <button class="tabs-btn" onclick="openGrades()">View Grades</button>
             <button class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
@@ -267,27 +274,26 @@
             <div class="student-info">
                 <div class="info">
                     <h2>Student Information</h2>
-                    <p id="loading-msg" style="color: #666; font-style: italic;">Loading student details...</p>
-                    <table id ="info-table">
+                    <table>
                         <tr>
                             <td class="label">Student ID No.</td>
-                            <td> <span id="profile-student-id" class="placeholder">____________________</span></td>
+                            <td>: <span class="<?php echo $placeholder_class; ?>" id="studentId"><?php echo $student_id; ?></span></td>
                         </tr>
                         <tr>
                             <td class="label">Student Name</td>
-                            <td> <span id="profile-name" class="placeholder">____________________</span></td>
+							<td>: <span class="<?php echo $placeholder_class; ?>" id="studentName"><?php echo $student_name; ?></span></td>
                         </tr>
                         <tr>
                             <td class="label">Program/Degree</td>
-                            <td> <span id="profile-program" class="placeholder">____________________</span></td>
+							<td>: <span class="<?php echo $placeholder_class; ?>" id="programDegree"><?php echo $program_name; ?></span></td>
                         </tr>
                         <tr>
                             <td class="label">Year Level</td>
-                            <td> <span id="profile-year" class="placeholder">____________________</span></td>
+							<td>: <span class="<?php echo $placeholder_class; ?>" id="yearLevel"><?php echo $yrlevel; ?></span></td>
                         </tr>
                         <tr>
                             <td class="label">Registration Status</td>
-                            <td> <span id="profile-status" class="placeholder">____________________</span></td>
+							<td>: <span class="<?php echo $placeholder_class; ?>" id="regStatus"><?php echo $status_name; ?></span></td>
                         </tr>
                     </table>
                 </div>
@@ -301,96 +307,63 @@
             <!-- subjects enrolled for current semester -->
             <h3 style="text-align: center;">SUBJECTS ENROLLED FOR CURRENT SEMESTER</h3>
 
-            <table id="subjectsEnrolledTable">
-                <tr>
-                    <th>SUBJECT CODE</th>
-                    <th>SECTION</th> 
-                    <th>SUBJECT TITLE</th>
-                </tr>
-
-                <!-- sample -->
-                <tr>
-                    <td>ADS001</td>
-                    <td>1</td>
-                    <td>ADVANCE DATABASE</td>
-                </tr>
-            </table>
-        </div>
-        
-
-        <!-- SIGN OUT POPUP -->
-        <div class="popup-overlay" id="signoutPopup">
-            <div class="popup-box">
-                <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
-                <h3>Sign out?</h3>
-                <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
-
-                <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
-                <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
-            </div>
-        </div>    
+			<div class="table-responsive">
+				<table id="subjectsEnrolledTable" class="table table-bordered">
+					<thead>
+						<tr>
+							<th>SUBJECT CODE</th>
+							<th>SUBJECT TITLE</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						// Check if a current semester was successfully identified
+						if ($current_sem_id === null) {
+							// Case 1: No active semester found
+							?>
+							<tr>
+								<td colspan="2" style="text-align: center; color: #BF1A1A; font-weight: bold;">
+									Error: Could not determine the current active semester.
+								</td>
+							</tr>
+							<?php
+						} elseif ($subjects_result === null || $subjects_result->num_rows === 0) {
+							// Case 2: Active semester found, but student is not enrolled (or subject list is empty)
+							?>
+							<tr>
+								<td colspan="2" style="text-align: center; color: #444; font-weight: bold;">
+									No subjects currently enrolled for the active semester.
+								</td>
+							</tr>
+							<?php
+						} else {
+							// Case 3: Subjects found - Loop through the fetched results
+							while ($row = $subjects_result->fetch_assoc()) {
+								?>
+								<tr>
+									<td><?php echo htmlspecialchars($row['sub_code']); ?></td>
+									<td><?php echo htmlspecialchars($row['subject_title']); ?></td>
+								</tr>
+								<?php
+							}
+						}
+						?>
+					</tbody>
+				</table>
+			</div>
     
 
     <script>
         // TAB BUTTONS
+        /* NOTE: REPLACE the destination of studentProfile TO login_wPass
+           when confirmSignout() is called if you will proceed with the login_wPass.html
+           in final implementation */
         function openProfile() { window.location.href = "studentProfile.html"; }
         function openGrades() { window.location.href = "viewGrades.html"; }
         function openEnrollment() { window.location.href = "enrollment_1.html"; }
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
             function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "logIn_wPass.html"; }       
-    
-    // --- FETCH DATA FROM PHP BACKEND ---
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('../backend/login/getStudentInfo.php' + window.location.search)
-                .then(response => response.json())
-                .then(data => {
-                    // Check if user is logged in
-                    if (data.loggedIn && data.status === 'success') {
-                        
-                        // Hide loading message, show table
-                        document.getElementById('loading-msg').style.display = 'none';
-                        document.getElementById('info-table').style.display = 'table';
-
-                        // HELPER FUNCTION: Only update text if data exists, otherwise keep placeholder style
-                        function updateField(elementId, value) {
-                            const el = document.getElementById(elementId);
-                            if (value != null && String(value).trim !== "") {
-                                el.textContent = value;
-                                el.classList.remove('placeholder');
-                                el.classList.add('data-value');
-                            } else {
-                                // Keep or restore placeholder style
-                                el.textContent = "____________________";
-                                el.classList.add('placeholder');
-                                el.classList.remove('data-value');
-                            }
-                        }
-
-                        // FILL DATA
-                        updateField('profile-student-id', data.student_id);
-                        
-                        let fullName = "";
-                        if(data.firstname) fullName += data.firstname + " ";
-                        if(data.middlename) fullName += data.middlename + " ";
-                        if(data.lastname) fullName += data.lastname;
-                        updateField('profile-name', fullName.trim());
-
-                        updateField('profile-program', data.program_name);
-                        updateField('profile-year', data.yrlevel);
-                        updateField('profile-status', data.status_name);
-
-                    } else {
-                        // Not logged in -> Redirect
-                        alert("Session expired or not logged in.");
-                        window.location.href = "login_wPass.html";
-                    }
-                })
-                .catch(err => {
-                    console.error("Error fetching data:", err);
-                    document.getElementById('loading-msg').textContent = "Error loading data.";
-                });
-        });
+            function confirmSignout() { window.location.href = "logIn_noPass.html"; }       
     </script>
 
 </body>

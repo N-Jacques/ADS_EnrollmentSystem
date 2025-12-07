@@ -1,52 +1,55 @@
 <?php
+include '../connection.php';
 header('Content-Type: application/json');
-require_once 'connection.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
-
 $student_id = $data['student_id'] ?? '';
 $sub_code = $data['sub_code'] ?? '';
 $section = $data['section'] ?? '';
 $sem_id = $data['sem_id'] ?? '20251';
 
+if (empty($student_id) || empty($sub_code) || empty($section) || empty($sem_id)) {
+    echo json_encode(['success' => false, 'error' => 'Missing required data.']);
+    exit;
+}
+
+// FIX: Using raw SQL START TRANSACTION
+if (!$conn->query("START TRANSACTION")) {
+    echo json_encode(['success' => false, 'error' => 'Failed to start transaction (Raw SQL failed).']);
+    exit;
+}
+
 try {
-    $conn->beginTransaction();
+    // Check if the student is already officially enrolled for this semester
+    $sql_check_enrollment = "SELECT is_enrolled FROM Student_Status WHERE student_id = ? AND sem_id = ? FOR UPDATE";
+    $stmt_check_enrollment = execute_query($conn, $sql_check_enrollment, "ss", [$student_id, $sem_id]);
+    $status_result = $stmt_check_enrollment ? $stmt_check_enrollment->get_result() : false;
+    $status = $status_result ? $status_result->fetch_assoc() : null;
 
-    $stmt = $conn->prepare("
-        SELECT enlistment_id 
-        FROM enlistment 
-        WHERE student_id = ? AND sem_id = ?
-    ");
-    $stmt->execute([$student_id, $sem_id]);
-    $enlistment_id = $stmt->fetchColumn();
+    if ($status && $status['is_enrolled']) {
+        throw new Exception('Cannot remove subject; enrollment is finalized.');
+    }
+    if ($stmt_check_enrollment) $stmt_check_enrollment->close();
 
-    if (!$enlistment_id) {
-        echo json_encode(['error' => 'No enlistment found']);
-        exit;
+    // Delete the enlistment record
+    $sql = "DELETE FROM Enlistment WHERE student_id = ? AND sub_code = ? AND section = ? AND sem_id = ?";
+    $stmt = execute_query($conn, $sql, "ssss", [$student_id, $sub_code, $section, $sem_id]);
+
+    if ($stmt->affected_rows === 0) {
+        throw new Exception('Subject not found in your enlisted list.');
     }
 
-    $stmt = $conn->prepare("
-        DELETE FROM enlisted_subjects 
-        WHERE enlistment_id = ? AND sub_code = ? AND section = ?
-    ");
-    $stmt->execute([$enlistment_id, $sub_code, $section]);
+    // COMMIT
+    $conn->query("COMMIT");
+    echo json_encode(['success' => true]);
 
-    $stmt = $conn->prepare("
-        UPDATE schedule 
-        SET slots = slots + 1 
-        WHERE sub_code = ? AND section = ? AND sem_id = ?
-    ");
-    $stmt->execute([$sub_code, $section, $sem_id]);
-
-    $conn->commit();
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Subject removed successfully'
-    ]);
-
-} catch(PDOException $e) {
-    $conn->rollBack();
-    echo json_encode(['error' => $e->getMessage()]);
+} catch (Exception $e) {
+    // ROLLBACK
+    if (isset($conn) && $conn) { 
+        @$conn->query("ROLLBACK"); 
+    }
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
+
+// REMOVED $conn->close();
 ?>

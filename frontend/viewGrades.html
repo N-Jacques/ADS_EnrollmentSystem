@@ -184,7 +184,7 @@
                 -webkit-appearance: none;
                 -moz-appearance: none;
 
-                background-image: url(images/dropdown.png);
+                background-image: url(../assets/dropdown.png);
                 background-repeat: no-repeat;
                 background-size: 12px 12px;
                 background-position: right 10px center; 
@@ -195,11 +195,11 @@
         }
 
         .subject-dropdown {
-            width: 100px; 
+            width: 150px; 
         }
 
         .semester-dropdown {
-            width: 80px;
+            width: 200px;
         }
 
         .dropdown-option {
@@ -279,12 +279,14 @@
         .cancel-btn:hover { 
             background-color: #e2e6eb; 
         }
+
+
     </style>
 </head>
 
 <body>
 
-    <!-- HEADER -->
+  <!-- HEADER -->
     <div class="header">
         <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
         <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>  
@@ -292,61 +294,54 @@
         <div class="tabsBtn">
             <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
             <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
-            <button style = "color:#b18819" class="tabs-btn" onclick="openGrades()">View Grades</button>
+            <button style="color:#b18819" class="tabs-btn" onclick="openGrades()">View Grades</button>
             <button class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
             <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
         </div>
     </div>
 
     <!-- MAIN PANEL -->
-        <div class="container"> 
-            
-            <h1>GRADES</h1>
+    <div class="container"> 
+        <h1>GRADES</h1>
 
-            <div class="search-container">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Subject..." oninput="filterGrades()">
+            <button class="search-button" onclick="filterGrades()">
+                <img src="../assets/searchLogoBtn.png" alt="Search Icon">
+            </button>
 
-                <!-- Search input -->
-                <input type="text" class="search-input" placeholder="Search Subject...">
-    
-                <!-- Search button -->
-                <button class="search-button">
-                    <img src="../assets/searchLogoBtn.png" alt="Search Icon">
-                </button>
+            <!-- School Year -->
+            <select id="schoolyearDropdown" class="dropdown subject-dropdown" onchange="loadGrades()">
+                <option value="">Select Year</option>
+                <option value="ALL">All Years</option>
+                <option value="2324">2023-2024</option>
+                <option value="2425">2024-2025</option>
+                <option value="2526">2025-2026</option>
+            </select>
 
-                <!-- School Year Dropdown -->
-                <select class="dropdown schoolyear-dropdown">
-                    <option value="">School Year</option>
-                    <option value="MIN">2324</option>
-                    <option value="MAJ">2425</option>
-                    <option value="MAJ">2526</option>
-                </select>
 
-                <!-- Semester Dropdown -->
-                <select class="dropdown semester-dropdown">
-                    <option value="">Sem</option>
-                    <option value="1st">First</option>
-                    <option value="2nd">Second</option>
-                    <option value="Mid">Midyear</option>
-                </select>
-            </div>
+            <!-- Semester -->
+            <select id="semesterDropdown" class="dropdown semester-dropdown" onchange="loadGrades()">
+                <option value="">All Semesters</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">Midyear</option>
+            </select>
+        </div>
 
-            <!-- subjects for approval table -->
-            <table id="gradesTable">
+        <table id="gradesTable">
+            <thead>
                 <tr>
                     <th>SUBJECT CODE</th>
                     <th>SUBJECT TITLE</th>
                     <th>GRADE</th>
-                    <th>REMARKS</th> 
+                    <th>REMARKS</th>
                 </tr>
-                
-            <!-- sample -->
-                <tr>
-                    <td>ADS001</td>
-                    <td>Advance Database</td>
-                    <td>1.00</td>
-                    <td>PASSED</td> 
-                </tr>
-            </table>
+            </thead>
+            <tbody id="gradesBody">
+                <tr><td colspan="4">Please select a school year to view grades.</td></tr>
+            </tbody>
+        </table>
     </div>
 
     <!-- SIGN OUT POPUP -->
@@ -361,15 +356,105 @@
         </div>
     </div>
 
-    <script>
-        function openProfile() { window.location.href = "studentProfile.html"; }
-        function openGrades() { window.location.href = "viewGrades.html"; }
-        function openEnrollment() { window.location.href = "enrollment_1.html"; }
-        function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
-            function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }    
-            function confirmSignout() { window.location.href = "logIn_noPass.html"; }      
-            
-    </script>
+<script>
+/* ============================================
+   HARDCODED SEMESTER IDS FOR EACH SCHOOL YEAR
+============================================ */
+const semesterMap = {
+    "2324": ["20231", "20232", "20233"],
+    "2425": ["20241", "20242", "20243"],
+    "2526": ["20251", "20252", "20253"]
+};
+
+/* ============================================
+   LOAD GRADES based on selected year & semester
+============================================ */
+function loadGrades() {
+    const yearValue = document.getElementById("schoolyearDropdown").value;
+    const semValue = document.getElementById("semesterDropdown").value;
+
+    if (!yearValue) {
+        document.getElementById("gradesBody").innerHTML = 
+            "<tr><td colspan='4'>Please select a school year to view grades.</td></tr>";
+        return;
+    }
+
+    let semesterIDs = [];
+
+    // If "All Years" is selected
+    if (yearValue === "ALL") {
+                const availableYears = ["2324", "2425", "2526"];
+                
+                availableYears.forEach(year => {
+                    const yearSemesters = semesterMap[year];
+                    
+                    if (!semValue) {
+                        // If "All Semesters", take everything for this year
+                        semesterIDs = semesterIDs.concat(yearSemesters);
+                    } else {
+                        // If specific sem, take only that index (0=1st, 1=2nd, 2=Mid)
+                        const semIndex = parseInt(semValue) - 1;
+                        if (yearSemesters[semIndex]) {
+                            semesterIDs.push(yearSemesters[semIndex]);
+                        }
+                    }
+                });
+            } else {
+                // Specific Year Logic
+                const allSemesters = semesterMap[yearValue];
+                
+                if (!semValue) {
+                    semesterIDs = allSemesters;
+                } else {
+                    semesterIDs = [allSemesters[parseInt(semValue) - 1]];
+                }
+            }
+
+
+    // Use POST for cleaner AJAX request
+    const formData = new FormData();
+    formData.append("semester_ids", semesterIDs.join(","));
+
+    fetch("../backend/search/viewgrades_search.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("gradesBody").innerHTML = html;
+        filterGrades(); // Apply search filter after loading
+    })
+    .catch(err => {
+        console.error("Error fetching grades:", err);
+        document.getElementById("gradesBody").innerHTML = 
+            "<tr><td colspan='4'>Error loading grades. Please try again.</td></tr>";
+    });
+}
+
+/* ============================================
+   FILTER GRADES BY SEARCH INPUT
+============================================ */
+function filterGrades() {
+    const searchValue = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#gradesBody tr");
+
+    rows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        row.style.display = rowText.includes(searchValue) ? "" : "none";
+    });
+}
+
+/* ============================================
+   NAVIGATION FUNCTIONS
+============================================ */
+function openDashboard() { window.location.href = "dashboard.html"; }
+function openProfile() { window.location.href = "studentProfile.html"; }
+function openGrades() { window.location.href = "viewGrades.html"; }
+function openEnrollment() { window.location.href = "enrollment_1.html"; }
+function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
+function confirmSignout() { window.location.href = "logIn_wPass.html"; }
+</script>
 
 </body>
 </html>

@@ -142,7 +142,7 @@ INSERT INTO STATUS VALUES ('REG', 'Regular');
 INSERT INTO STUDENTS VALUES ('202250051', 'Luis Albashier', 'De Vera', 'Carlos', 4, 'BSIT', 'IRR');
 INSERT INTO STUDENTS VALUES ('202336039', 'Nicaela', 'Geronimo', 'Comia', 3, 'BSIT', 'REG'); 
 INSERT INTO STUDENTS VALUES ('202250011', 'Ayen Zaica', 'Bernardo', 'Dy', 4, 'BSIT', 'IRR');
-
+--                              Login ID , Student ID, Username, Passkey
 INSERT INTO CREDENTIALS VALUES ('001', '202250051', 'carlos', '202250051');
 INSERT INTO CREDENTIALS VALUES ('002', '202336039', 'comia', '202336039');
 INSERT INTO CREDENTIALS VALUES ('003', '202250011', 'dy', '202250011');

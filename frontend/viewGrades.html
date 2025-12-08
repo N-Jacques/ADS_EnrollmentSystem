@@ -128,12 +128,12 @@
         }
 
         .search-container {
-        top: 50%;
-        left: 40px;
-        transform: translateY(-50%);
-        display: flex;
-        align-items: center;
-        gap: 8px;
+            top: 50%;
+            left: 40px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .search-input {
@@ -150,7 +150,7 @@
             outline: 2px solid #CBCBCB;
         }
 
- .search-button {
+        .search-button {
             width: 50px;
             height: 35px;
             border: none;
@@ -171,24 +171,24 @@
             background-color: #e2e6eb;
         }
 
-            .dropdown {
-                height: 35px;
-                border: none;
-                border-radius: 6px;
-                background-color: #CBCBCB;
-                cursor: pointer;
-                font-size: 14px;
-                padding: 0 25px 0 10px; 
-                text-align: left;
-                appearance: none;
-                -webkit-appearance: none;
-                -moz-appearance: none;
+        .dropdown {
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            background-color: #CBCBCB;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 25px 0 10px; 
+            text-align: left;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
 
-                background-image: url(../assets/dropdown.png);
-                background-repeat: no-repeat;
-                background-size: 12px 12px;
-                background-position: right 10px center; 
-            }
+            background-image: url(../assets/dropdown.png);
+            background-repeat: no-repeat;
+            background-size: 12px 12px;
+            background-position: right 10px center; 
+        }
 
         .dropdown:hover {
             background-color: #e2e6eb;
@@ -268,7 +268,6 @@
 
         .signout-btn:hover { 
             background-color: #b18819;
- 
         }
 
         .cancel-btn { 
@@ -279,8 +278,6 @@
         .cancel-btn:hover { 
             background-color: #e2e6eb; 
         }
-
-
     </style>
 </head>
 
@@ -311,13 +308,11 @@
 
             <!-- School Year -->
             <select id="schoolyearDropdown" class="dropdown subject-dropdown" onchange="loadGrades()">
-                <option value="">Select Year</option>
                 <option value="ALL">All Years</option>
                 <option value="2324">2023-2024</option>
                 <option value="2425">2024-2025</option>
                 <option value="2526">2025-2026</option>
             </select>
-
 
             <!-- Semester -->
             <select id="semesterDropdown" class="dropdown semester-dropdown" onchange="loadGrades()">
@@ -338,7 +333,7 @@
                 </tr>
             </thead>
             <tbody id="gradesBody">
-                <tr><td colspan="4">Please select a school year to view grades.</td></tr>
+                <tr><td colspan="4">Loading grades...</td></tr>
             </tbody>
         </table>
     </div>
@@ -372,45 +367,37 @@ function loadGrades() {
     const yearValue = document.getElementById("schoolyearDropdown").value;
     const semValue = document.getElementById("semesterDropdown").value;
 
-    if (!yearValue) {
-        document.getElementById("gradesBody").innerHTML = 
-            "<tr><td colspan='4'>Please select a school year to view grades.</td></tr>";
-        return;
-    }
-
     let semesterIDs = [];
 
     // If "All Years" is selected
     if (yearValue === "ALL") {
-                const availableYears = ["2324", "2425", "2526"];
-                
-                availableYears.forEach(year => {
-                    const yearSemesters = semesterMap[year];
-                    
-                    if (!semValue) {
-                        // If "All Semesters", take everything for this year
-                        semesterIDs = semesterIDs.concat(yearSemesters);
-                    } else {
-                        // If specific sem, take only that index (0=1st, 1=2nd, 2=Mid)
-                        const semIndex = parseInt(semValue) - 1;
-                        if (yearSemesters[semIndex]) {
-                            semesterIDs.push(yearSemesters[semIndex]);
-                        }
-                    }
-                });
+        const availableYears = ["2324", "2425", "2526"];
+        
+        availableYears.forEach(year => {
+            const yearSemesters = semesterMap[year];
+            
+            if (!semValue) {
+                // If "All Semesters", take everything for this year
+                semesterIDs = semesterIDs.concat(yearSemesters);
             } else {
-                // Specific Year Logic
-                const allSemesters = semesterMap[yearValue];
-                
-                if (!semValue) {
-                    semesterIDs = allSemesters;
-                } else {
-                    semesterIDs = [allSemesters[parseInt(semValue) - 1]];
+                // If specific sem, take only that index (0=1st, 1=2nd, 2=Mid)
+                const semIndex = parseInt(semValue) - 1;
+                if (yearSemesters[semIndex]) {
+                    semesterIDs.push(yearSemesters[semIndex]);
                 }
             }
+        });
+    } else {
+        // Specific Year Logic
+        const allSemesters = semesterMap[yearValue];
+        
+        if (!semValue) {
+            semesterIDs = allSemesters;
+        } else {
+            semesterIDs = [allSemesters[parseInt(semValue) - 1]];
+        }
+    }
 
-
-    // Use POST for cleaner AJAX request
     const formData = new FormData();
     formData.append("semester_ids", semesterIDs.join(","));
 
@@ -452,6 +439,12 @@ function openEnrollment() { window.location.href = "enrollment_1.html"; }
 function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
 function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
 function confirmSignout() { window.location.href = "logIn_wPass.html"; }
+
+
+//Auto-load grades
+window.addEventListener("DOMContentLoaded", function() {
+    loadGrades(); 
+});
 </script>
 
 </body>

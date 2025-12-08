@@ -1,62 +1,70 @@
 <?php
+include '../connection.php';
 header('Content-Type: application/json');
-require_once 'connection.php';
 
 $student_id = $_GET['student_id'] ?? '';
-$sem_id = $_GET['sem_id'] ?? '20251';
+$sem_id = $_GET['sem_id'] ?? '20251'; 
 
-if (empty($student_id)) {
-    echo json_encode(['error' => 'Student ID required']);
-    exit;
-}
+if (empty($student_id)) exit;
 
-try {
-    $stmt = $conn->prepare("
-        SELECT enlistment_id 
-        FROM enlistment 
-        WHERE student_id = ? AND sem_id = ?
-    ");
-    $stmt->execute([$student_id, $sem_id]);
-    $enlistment_id = $stmt->fetchColumn();
+// Check if enrolled
+$sql_check = "
+SELECT e.enlistment_id, (SELECT count(*) FROM enrolled en WHERE en.enlistment_id = e.enlistment_id) as is_enrolled
+FROM enlistment e
+WHERE e.student_id = ? AND e.sem_id = ?";
 
-    if (!$enlistment_id) {
-        echo json_encode([
-            'success' => true,
-            'enlisted' => []
-        ]);
-        exit;
+$stmt = execute_query($conn, $sql_check, "ss", [$student_id, $sem_id]);
+$res = $stmt->get_result()->fetch_assoc();
+
+$enlistment_id = $res['enlistment_id'] ?? null;
+$is_enrolled = ($res['is_enrolled'] ?? 0) > 0;
+
+$enlisted = [];
+
+if ($enlistment_id) {
+    // Fetch details
+    $sql_details = "
+    SELECT 
+        es.sub_code, 
+        es.section, 
+        s.title, 
+        s.units, 
+        sc.day_id, 
+        dd.day_name, 
+        sc.time_start, 
+        sc.time_end
+    FROM enlisted_subjects es
+    JOIN subjects s ON es.sub_code = s.sub_code
+    JOIN schedule sc ON es.sub_code = sc.sub_code AND es.section = sc.section AND sc.sem_id = ?
+    JOIN day_details dd ON sc.day_id = dd.day_id
+    WHERE es.enlistment_id = ?";
+    
+    $stmt_d = execute_query($conn, $sql_details, "ss", [$sem_id, $enlistment_id]);
+    $result = $stmt_d->get_result();
+
+    while($row = $result->fetch_assoc()) {
+        $key = $row['sub_code'] . '-' . $row['section'];
+        if (!isset($enlisted[$key])) {
+            $enlisted[$key] = [
+                'sub_code' => $row['sub_code'],
+                'section' => $row['section'],
+                'title' => $row['title'],
+                'units' => $row['units'],
+                'schedule_arr' => []
+            ];
+        }
+        $enlisted[$key]['schedule_arr'][] = $row['day_name'] . " " . $row['time_start'] . "-" . $row['time_end'];
     }
-
-    $stmt = $conn->prepare("
-        SELECT 
-            s.sub_code,
-            s.title,
-            s.units,
-            st.subtype_desc,
-            GROUP_CONCAT(
-                CONCAT(dd.day_name, ' ', sch.time_start, '-', sch.time_end)
-                SEPARATOR ', '
-            ) as schedule,
-            es.section,
-            sch.room
-        FROM enlisted_subjects es
-        JOIN subjects s ON es.sub_code = s.sub_code
-        JOIN subject_type st ON s.subtype_id = st.subtype_id
-        JOIN schedule sch ON s.sub_code = sch.sub_code AND es.section = sch.section
-        JOIN day_details dd ON sch.day_id = dd.day_id
-        WHERE es.enlistment_id = ?
-        AND sch.sem_id = ?
-        GROUP BY s.sub_code, es.section
-    ");
-    $stmt->execute([$enlistment_id, $sem_id]);
-    $enlisted = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode([
-        'success' => true,
-        'enlisted' => $enlisted
-    ]);
-
-} catch(PDOException $e) {
-    echo json_encode(['error' => $e->getMessage()]);
+    
+    // Flatten schedule array to string
+    foreach($enlisted as &$item) {
+        $item['schedule'] = implode(" / ", $item['schedule_arr']);
+        unset($item['schedule_arr']);
+    }
 }
+
+echo json_encode([
+    'enlisted' => array_values($enlisted), 
+    'is_enrolled' => $is_enrolled
+]);
 ?>

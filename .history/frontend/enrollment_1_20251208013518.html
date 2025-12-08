@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Enrollment</title>
+
+    <style>
+      
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://plm.edu.ph/FooterImage.jpg') no-repeat center/cover fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+       
+         .header {
+            width: 100%;
+            height: 60px;
+            padding: 15px 35px;
+            background-color: white;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            box-shadow: 0px 1px 10px 1px#52525286;
+            align-items: center;
+            position: fixed;
+            z-index: 998;
+        }
+
+        .plm-group {
+            height: 60px;
+            padding: 15px 35px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+            .plm-group img {
+                width: 60px;
+                height: 60px;
+            }
+
+            .plm-group p {
+                font-family: 'Times New Roman', Times, serif; 
+                color: #b18819; 
+                font-size: 25px; 
+                font-weight: bold; 
+                align-self: center; 
+            }
+
+        .tabs-group {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            margin-right: 6%;
+            gap: 15px;
+        }
+
+            .tabs-btn { 
+                display: flex;
+                font-size: 22px;
+                position: relative;
+                display: inline-flex;
+                text-align: center;
+                background-color: transparent;
+                color: 080808;
+                padding: 10px 10px;
+                border-width: 0px;
+                cursor: pointer;
+            }
+
+            .tabs-btn::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -5px; 
+            width: 0;
+            height: 2px;
+            background-color: #b18819; 
+            text-decoration-thickness: 3px;
+            transition: width 0.6s ease-in-out; 
+            }
+
+            .tabs-btn:hover::after {
+                width: 100%; 
+            }
+
+            .tabs-btn:hover {
+                color: #b18819;
+            }
+
+        /********************************************************
+        * NAME PANEL
+        ********************************************************/
+        .name-panel {
+            background: #fff;
+            width: 89.9%;
+            max-height: 100px;
+            margin: 120px auto 4px;
+            margin-top: 140px;
+            padding: 20px 35px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0px 1px 10px 1px #52525286;
+        }
+
+        .clickable-name {
+            color: #020202;
+            font-size: 23px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .clickable-name:hover {
+            color: #0b4fa8;
+        }
+
+        .student-number {
+            color: #5d5c5d;
+            font-style: italic;
+            font-size: 23px;
+        }
+
+        
+        /*CONTAINER*/
+        
+        .container {
+            background: #fff;
+            width: 89.9%;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            margin: 20px auto 50px;
+            padding: 30px 35px;
+            border-radius: 30px;
+            box-shadow: 0px 1px 10px 1px #52525286;  
+        }
+
+        /********************************************************
+        * PROGRESS BAR
+        ********************************************************/
+        .progress-container {
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            position: relative;
+            padding-top: 40px;
+        }
+
+        .line-bg {
+            position: absolute;
+            top: 69px;
+            left: 50px;
+            right: 50px;
+            height: 4px;
+            background: #e7e6e6;
+            border-radius: 4px;
+        }
+
+        .line-fill {
+            position: absolute;
+            top: 69px;
+            left: 50px;
+            height: 4px;
+            background: #BF1A1A;
+            border-radius: 4px;
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step {
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #bbb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background: #fff;
+            transition: 0.3s;
+        }
+
+        .label {
+            font-size: 17px;
+            color: #777;
+            margin-top: 10px;
+            max-width: 100px;
+            text-align: center;
+            display: block; 
+        }
+
+        /* ACTIVE STEP */
+        .active .circle {
+            border-color: #BF1A1A;
+            color: #BF1A1A;
+        }
+
+        .active .label {
+            color: #BF1A1A;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .completed .circle {
+            border-color: #BF1A1A;
+            background: #BF1A1A;
+            color: white;
+        }
+
+        .completed .label {
+            color: #BF1A1A;
+            font-weight: bold;
+        }
+
+        /********************************************************
+        * SEARCH AREA
+        ********************************************************/
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 250px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .search-input:focus {
+            outline: 2px solid #BF1A1A;
+            border-color: transparent;
+        }
+
+        .search-button {
+            width: 50px;
+            height: 35px;
+            background: #CBCBCB;
+            border: none;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .search-button:hover {
+            background: #e2e6eb;
+        }
+
+        .search-button img {
+            width: 28px;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sem-static {
+            background: #e9ecef;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .noticeContainer {
+            display: flex;
+            align-items: center;
+            color: #BF1A1A;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        /********************************************************
+        * TABLES
+        ********************************************************/
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #BF1A1A;
+            color: white;
+            padding: 12px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /********************************************************
+        * BUTTONS
+        ********************************************************/
+        .btn-add {
+            background: #1a7fbf;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-add:hover {
+            background: #145a86;
+        }
+
+        .btn-remove {
+            background: #bf1a1a;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-disabled {
+            background: #ccc;
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: not-allowed;
+        }
+        
+        .btn-passed {
+            background: #4caf50;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .next-btn {
+            align-self: flex-end;
+            padding: 15px 40px;
+            background: #b18819;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .next-btn:hover {
+            background: #96700e;
+        }
+
+        /********************************************************
+        * POPUP MODAL
+        ********************************************************/
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .popup-box {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,.3);
+        }
+
+        .popup-btn {
+            width: 45%;
+            margin: 10px 2%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .signout-btn {
+            background: #8a6912;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #cbcbcb;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="plm-group">
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
+            <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>
+        </div>
+
+        <div class="tabs-group">
+            <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
+            <button class="tabs-btn" onclick="openGrades()">View Grades</button>
+            <button class="tabs-btn" style="color:#b18819;" onclick="openEnrollment()">Enrollment</button>
+            <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
+        </div>
+    </div>
+
+
+    <div class="name-panel">
+        <!-- Replaced hardcoded values with ID selectors -->
+        <span class="clickable-name" id="studentName">Loading...</span>
+        <span class="student-number" id="displayStudentId"></span>
+        <input type="hidden" id="studentId" value=""> 
+    </div>
+
+
+    <div class="container">
+
+        <div class="progress-container">
+                <div class="line-bg"></div>
+                <div class="line-fill" id="line"></div>
+
+                <div class="steps">
+                    <div class="step" id="step1">
+                        <div class="circle">1</div>
+                        <div class="label">SUBJECT ENLISTMENT</div>
+                    </div>
+
+                    <div class="step" id="step2">
+                        <div class="circle">2</div>
+                        <div class="label">CONFIRM ENROLLMENT</div>
+                    </div>
+
+                    <div class="step" id="step3">
+                        <div class="circle">3</div>
+                        <div class="label">VIEW SCHEDULE</div>
+                    </div>
+                </div>
+            </div>
+
+        <h3 style="text-align:center;">SUBJECTS FOR APPROVAL</h3>
+
+        <div class="table-responsive">
+            <table id="approvalTable">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Subject Code</th>
+                        <th>Section</th>
+                        <th>Title</th>
+                        <th>Units</th>
+                        <th>Schedule</th>
+                    </tr>
+                </thead>
+
+                <tbody id="approvalTableBody">
+                    <tr>
+                        <td colspan="6" style="padding:20px; color:#777;">No subjects added to schedule.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="search-row">
+
+            <div class="search-group">
+                <input id="searchInput" class="search-input" type="text" placeholder="Search Subject..." onkeyup="if(event.key === 'Enter') performSearch()">
+
+                <button class="search-button" onclick="performSearch()">
+                    <img src="../assets/searchLogoBtn.png">
+                </button>
+
+                <select id="subtypeSelect" onchange="performSearch()">
+                    <option value="MAJ">Major</option>
+                    <option value="MIN">Minor</option>
+                </select>
+
+                <div class="sem-static">
+                    Semester: <span id="semLabel">2025-2</span>
+                </div>
+
+                <input type="hidden" id="semesterId" value="20252">
+            </div>
+
+            <div class="noticeContainer">
+                <p id="statusNotice" style="margin:0;">
+                    NOTICE: You are not yet enrolled unless your subjects are already approved by the college department
+                </p>
+            </div>
+
+        </div>
+
+
+        <h3>AVAILABLE SUBJECTS</h3>
+
+        <div class="table-responsive">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Subject Code</th>
+                        <th>Section</th>
+                        <th>Title</th>
+                        <th>Units</th>
+                        <th>Schedule</th>
+                        <th>Room</th>
+                        <th>Available Slots</th>
+                    </tr>
+                </thead>
+
+                <tbody id="resultsTableBody">
+                    <tr>
+                        <td colspan="8" style="padding:30px; color:#777;">Search for available subjects above.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <button class="next-btn" onclick="confirmEnlistment()">NEXT</button>
+
+    </div>
+
+
+    <div class="popup-overlay" id="signOutPopup">
+        <div class="popup-box">
+            <h3>Confirm Sign Out</h3>
+            <p>Are you sure you want to sign out?</p>
+
+            <button class="popup-btn signout-btn" onclick="window.location.href = 'logIn_wPass.html'";>SIGN OUT</button>
+            <button class="popup-btn cancel-btn" onclick="hidePopup('signOutPopup')">CANCEL</button>
+        </div>
+    </div>
+
+
+
+    <script>
+
+        // Changed from const to let so we can populate it after fetch
+        let STUDENT_ID = "";
+        
+        let enlistedSubjects = [];
+        let isEnrolled = false;
+        let passedSubjects = []; 
+
+
+        /******************************
+         * HELPERS
+         ******************************/
+        const showMessage = msg => alert(msg);
+
+        function showPopup(id) { 
+            document.getElementById(id).style.display = "flex"; 
+        }
+        function hidePopup(id) { 
+            document.getElementById(id).style.display = "none"; 
+        }
+        function saveLocal() {
+            localStorage.setItem("enlistedSubjects", JSON.stringify(enlistedSubjects));
+        }
+
+
+        /******************************
+         * LOAD STUDENT PROFILE
+         ******************************/
+        function loadStudentProfile() {
+            return fetch('../backend/login/getStudentInfo.php')
+                .then(res => res.json())
+                .then(data => {
+                    // Check if data is valid
+                    if (!data.student_id && !data.success) {
+                        // Not logged in or error
+                        alert("Session expired. Please log in.");
+                        window.location.href = 'logIn_wPass.html';
+                        throw new Error("No session");
+                    }
+
+                    // Assign global ID
+                    STUDENT_ID = data.student_id;
+
+                    // Construct Name: Last, First Middle
+                    const fullName = `${data.lastname}, ${data.firstname} ${data.middlename || ''}`;
+
+                    // Update UI
+                    document.getElementById('studentName').innerText = fullName.toUpperCase();
+                    document.getElementById('displayStudentId').innerText = `(${STUDENT_ID})`;
+                    document.getElementById('studentId').value = STUDENT_ID;
+                });
+        }
+
+
+        /******************************
+         * LOAD PASSED SUBS
+         ******************************/
+        function loadPassedSubjects() {
+            if(!STUDENT_ID) return; // Guard clause
+
+            fetch(`../backend/enrollment/taken_subjects.php?student_id=${STUDENT_ID}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    passedSubjects = data.passed_subjects;
+                }
+            })
+            .catch(e => console.error("Failed to load passed subjects", e));
+        }
+
+        /******************************
+         * SEARCH
+         ******************************/
+        function performSearch() {
+            const formData = new FormData();
+            formData.append("query", document.getElementById("searchInput").value);
+            formData.append("subtype", document.getElementById("subtypeSelect").value);
+            formData.append("semester", document.getElementById("semesterId").value);
+
+            fetch("../backend/search/search.php", { method: "POST", body: formData })
+                .then(res => res.text())
+                .then(html => {
+                    const tbody = document.getElementById("resultsTableBody");
+                    tbody.innerHTML = html;
+
+                    // Disable buttons if already passed
+                    const buttons = tbody.querySelectorAll('button');
+                    buttons.forEach(btn => {
+                        const code = btn.dataset.code;
+                        if (passedSubjects.includes(code)) {
+                            btn.innerText = "PASSED";
+                            btn.className = "btn-passed";
+                            btn.disabled = true;
+                            btn.removeAttribute("onclick");
+                        }
+                    });
+                });
+        }
+
+
+        /******************************
+         * ADD SUBJECT
+         ******************************/
+        function addSubject(btn) {
+            if (isEnrolled) return showMessage("You are already enrolled.");
+
+            const sub = {
+                code: btn.getAttribute('data-code'),
+                section: btn.getAttribute('data-section') || "TBA", 
+                title: btn.getAttribute('data-title'),
+                units: btn.getAttribute('data-units'),
+                schedule: btn.getAttribute('data-schedule'),
+                slots: parseInt(btn.getAttribute('data-slots'))
+            };
+
+            // EXCEPTION: Check if subject is already passed
+            if (passedSubjects.includes(sub.code)) {
+                return showMessage(`Cannot Enlist: You have already passed ${sub.code} (${sub.title}).`);
+            }
+
+            if (enlistedSubjects.some(s => s.code === sub.code))
+                return showMessage("Subject already added.");
+
+            if (sub.slots <= 0)
+                return showMessage("No slots available.");
+
+            const conflict = findConflict(sub, enlistedSubjects);
+            if (conflict)
+                return showMessage(`Schedule conflict with ${conflict.code}`);
+
+            enlistedSubjects.push(sub);
+            saveLocal();
+            renderEnlistedTable();
+        }
+
+
+        /******************************
+         * CONFLICT CHECK
+         ******************************/
+        function findConflict(newSub, list) {
+            const parse = (sched) =>
+                sched.split(" / ").map(p => {
+                    const [day, time] = p.split(" ");
+                    const [start, end] = time.split("-").map(t => parseInt(t.replace(":", "")));
+                    return { day, start, end };
+                });
+
+            const newTimes = parse(newSub.schedule);
+
+            for (let ex of list) {
+                let exTimes = parse(ex.schedule);
+
+                for (let n of newTimes)
+                    for (let e of exTimes)
+                        if (n.day === e.day && n.start < e.end && n.end > e.start)
+                            return ex;
+            }
+
+            return null;
+        }
+
+
+        /******************************
+         * REMOVE + RENDER
+         ******************************/
+        function removeSubject(index) {
+            if (isEnrolled) return;
+            enlistedSubjects.splice(index, 1);
+            saveLocal();
+            renderEnlistedTable();
+        }
+
+        function renderEnlistedTable() {
+            const tbody = document.getElementById("approvalTableBody");
+            tbody.innerHTML = "";
+
+            if (enlistedSubjects.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="6" style="padding:20px; color:#777;">No subjects added to schedule.</td></tr>`;
+                return;
+            }
+
+            enlistedSubjects.forEach((sub, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><button class="btn-remove" onclick="removeSubject(${index})">REMOVE</button></td>
+                        <td>${sub.code}</td>
+                        <td>${sub.section}</td>
+                        <td>${sub.title}</td>
+                        <td>${sub.units}</td>
+                        <td>${sub.schedule}</td>
+                    </tr>
+                `;
+            });
+        }
+
+
+        /******************************
+         * CONFIRM ENLISTMENT
+         ******************************/
+       function confirmEnlistment() {
+            if (isEnrolled) return showMessage("Already enrolled.");
+            if (enlistedSubjects.length === 0) return showMessage("Schedule is empty.");
+            if (!confirm("Proceed with enrollment?")) return; 
+
+            const payload = {
+                student_id: STUDENT_ID,
+                sem_id: document.getElementById("semesterId").value,
+                subjects: enlistedSubjects
+            };
+
+            fetch("../backend/enrollment/confirm_enlistment.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) { 
+                    localStorage.setItem("enlistedSubjects", JSON.stringify(enlistedSubjects));
+                    localStorage.setItem("student_id", STUDENT_ID); // Ensure ID is saved too
+                    
+
+                    window.location.replace("enrollment_2.html");
+                } else {
+                    alert(data.error);
+                }
+            })
+            .catch(err => {
+                console.error("Enrollment error:", err);
+                alert("An error occurred while communicating with the server.");
+            });
+        }
+
+
+        /******************************
+         * LOAD STATUS
+         ******************************/
+        function loadExistingEnrollment() {
+            if(!STUDENT_ID) return; // Guard clause
+
+            const sem = document.getElementById("semesterId").value;
+            if (!sem) return;
+
+            fetch(`../backend/enrollment/get_enlisted.php?student_id=${STUDENT_ID}&sem_id=${sem}`)
+                .then(res => res.json())
+                .then(data => {
+                    isEnrolled = data.is_enrolled;
+                    const notice = document.getElementById("statusNotice");
+
+                    if (isEnrolled) {
+                        // Auto-redirect to next step if already enrolled since back button is not needed
+                        window.location.replace("enrollment_2.html");
+                        return;
+                    } 
+                    
+                    // Standard load for non-enrolled students
+                    notice.innerText = "NOTICE: You are not yet enrolled unless your subjects are already approved by the college department.";
+                    notice.style.color = "#BF1A1A";
+                    updateProgressBar(1);
+
+                    enlistedSubjects = [];
+                    renderEnlistedTable();
+                });
+        }
+
+
+        /******************************
+         * PROGRESS BAR UPDATE
+         ******************************/
+        function updateProgressBar(step) {
+            document.querySelectorAll(".step")
+                .forEach(s => s.classList.remove("active", "completed"));
+
+            if (step >= 1) document.getElementById("step1").classList.add(step === 1 ? "active" : "completed");
+            if (step >= 2) document.getElementById("step2").classList.add(step === 2 ? "active" : "completed");
+            if (step >= 3) document.getElementById("step3").classList.add(step === 3 ? "active" : "completed");
+
+            const line = document.getElementById("line");
+            if (step === 1) line.style.width = "0%";
+            if (step === 2) line.style.width = "calc(50% - 70px)";
+            if (step === 3) line.style.width = "calc(100% - 140px)";
+        }
+
+
+        /******************************
+         * NAVIGATION
+         ******************************/
+        function openProfile() { window.location.href = "studentProfile.html"; }
+        function openGrades() { window.location.href = "viewGrades.html"; }
+        function openEnrollment() { window.location.href = "enrollment_1.html"; }
+        function openSignoutPopup() { showPopup("signOutPopup"); }
+        
+        // Load draft on startup
+        function initDraftSubjects() {
+            const stored = localStorage.getItem("enlistedSubjects");
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        enlistedSubjects = parsed;
+                        renderEnlistedTable();
+                    }
+                } catch(e) {
+                    console.error("Failed to load draft subjects", e);
+                }
+            }
+        }
+
+        // INITIAL LOAD
+        // We use promise chaining here:
+        // 1. Fetch Profile info (Name, Student ID)
+        // 2. ONLY after that finishes, fetch Enrollment and Grades
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStudentProfile()
+                .then(() => {
+                    // These run only after STUDENT_ID is populated
+                    loadExistingEnrollment();
+                    loadPassedSubjects();
+                })
+                .catch(err => {
+                    console.error("Initialization failed:", err);
+                });
+        });
+
+    </script>
+
+</body>
+</html>

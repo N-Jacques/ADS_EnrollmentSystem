@@ -1,102 +1,99 @@
 <?php
+include '../connection.php';
 header('Content-Type: application/json');
-require_once 'connection.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
-
 $student_id = $data['student_id'] ?? '';
 $sub_code = $data['sub_code'] ?? '';
 $section = $data['section'] ?? '';
 $sem_id = $data['sem_id'] ?? '20251';
 
-if (empty($student_id) || empty($sub_code) || empty($section)) {
-    echo json_encode(['error' => 'Missing required fields']);
+if (empty($student_id) || empty($sub_code) || empty($section) || empty($sem_id)) {
+    echo json_encode(['success' => false, 'error' => 'Missing required data.']);
+    exit;
+}
+
+// FIX: Using raw SQL START TRANSACTION
+if (!$conn->query("START TRANSACTION")) {
+    echo json_encode(['success' => false, 'error' => 'Failed to start transaction (Raw SQL failed).']);
     exit;
 }
 
 try {
-    $conn->beginTransaction();
+    // 1. Check if the student is already officially enrolled for this semester
+    $sql_check_enrollment = "SELECT is_enrolled FROM Student_Status WHERE student_id = ? AND sem_id = ? FOR UPDATE";
+    $stmt_check_enrollment = execute_query($conn, $sql_check_enrollment, "ss", [$student_id, $sem_id]);
+    $status_result = $stmt_check_enrollment ? $stmt_check_enrollment->get_result() : false;
+    $status = $status_result ? $status_result->fetch_assoc() : null;
 
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) 
-        FROM subjects_taken 
-        WHERE student_id = ? AND sub_code = ? AND grade < 3.0
-    ");
-    $stmt->execute([$student_id, $sub_code]);
-    if ($stmt->fetchColumn() > 0) {
-        echo json_encode(['error' => 'Subject already taken']);
-        exit;
+    if ($status && $status['is_enrolled']) {
+        throw new Exception('You are already officially enrolled. Changes are locked.');
+    }
+    $stmt_check_enrollment->close();
+
+
+    // 2. Check for duplicate enlistment
+    $sql_check = "SELECT * FROM Enlistment WHERE student_id = ? AND sub_code = ? AND section = ? AND sem_id = ?";
+    $stmt_check = execute_query($conn, $sql_check, "ssss", [$student_id, $sub_code, $section, $sem_id]);
+    $check_result = $stmt_check ? $stmt_check->get_result() : false;
+
+    if ($check_result && $check_result->num_rows > 0) {
+        throw new Exception('Subject is already enlisted.');
+    }
+    $stmt_check->close();
+
+    // 3. Check for slot availability (with lock for concurrency safety)
+    $sql_slots = "
+    SELECT s.slots, COUNT(e.student_id) as enlisted_count
+    FROM Subjects s
+    LEFT JOIN Enlistment e ON s.sub_code = e.sub_code AND s.section = e.section AND s.sem_id = e.sem_id
+    WHERE s.sub_code = ? AND s.section = ? AND s.sem_id = ?
+    GROUP BY s.slots
+    FOR UPDATE
+    ";
+    $stmt_slots = execute_query($conn, $sql_slots, "sss", [$sub_code, $section, $sem_id]);
+    $slots_result = $stmt_slots->get_result();
+    $subject_info = $slots_result ? $slots_result->fetch_assoc() : null;
+    if ($stmt_slots) $stmt_slots->close();
+
+    if ($subject_info === null) {
+        throw new Exception("Subject section not found.");
+    }
+    
+    $remaining_slots = $subject_info['slots'] - $subject_info['enlisted_count'];
+
+    if ($remaining_slots <= 0) {
+        throw new Exception("Subject section is already full. Remaining slots: 0");
     }
 
-    $stmt = $conn->prepare("
-        SELECT slots 
-        FROM schedule 
-        WHERE sub_code = ? AND section = ? AND sem_id = ?
-        LIMIT 1
-    ");
-    $stmt->execute([$sub_code, $section, $sem_id]);
-    $slots = $stmt->fetchColumn();
+    // 4. Insert into Enlistment
+    $sql_insert = "INSERT INTO Enlistment (student_id, sub_code, section, sem_id) VALUES (?, ?, ?, ?)";
+    $stmt_insert = execute_query($conn, $sql_insert, "ssss", [$student_id, $sub_code, $section, $sem_id]);
 
-    if ($slots <= 0) {
-        echo json_encode(['error' => 'No available slots']);
-        exit;
+    if ($stmt_insert === false || $stmt_insert->affected_rows === 0) {
+        throw new Exception("Failed to insert enlistment record.");
     }
+    $stmt_insert->close();
 
-    $stmt = $conn->prepare("
-        SELECT enlistment_id 
-        FROM enlistment 
-        WHERE student_id = ? AND sem_id = ?
-    ");
-    $stmt->execute([$student_id, $sem_id]);
-    $enlistment_id = $stmt->fetchColumn();
+    // 5. Ensure Student_Status exists
+    $sql_upsert_status = "
+        INSERT INTO Student_Status (student_id, sem_id, is_enrolled) 
+        VALUES (?, ?, FALSE) 
+        ON DUPLICATE KEY UPDATE is_enrolled=is_enrolled"; 
+    $stmt_upsert = execute_query($conn, $sql_upsert_status, "ss", [$student_id, $sem_id]);
+    $stmt_upsert->close();
 
-    if (!$enlistment_id) {
-        $stmt = $conn->prepare("
-            SELECT CONCAT('E', LPAD(COALESCE(MAX(CAST(SUBSTRING(enlistment_id, 2) AS UNSIGNED)), 0) + 1, 4, '0'))
-            FROM enlistment
-        ");
-        $stmt->execute();
-        $enlistment_id = $stmt->fetchColumn();
+    // COMMIT
+    $conn->query("COMMIT");
+    echo json_encode(['success' => true]);
 
-        $stmt = $conn->prepare("
-            INSERT INTO enlistment (enlistment_id, student_id, sem_id, date_created) 
-            VALUES (?, ?, ?, CURDATE())
-        ");
-        $stmt->execute([$enlistment_id, $student_id, $sem_id]);
+} catch (Exception $e) {
+    // ROLLBACK
+    if (isset($conn) && $conn) { 
+        @$conn->query("ROLLBACK"); 
     }
-
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) 
-        FROM enlisted_subjects 
-        WHERE enlistment_id = ? AND sub_code = ?
-    ");
-    $stmt->execute([$enlistment_id, $sub_code]);
-    if ($stmt->fetchColumn() > 0) {
-        echo json_encode(['error' => 'Subject already in enlistment']);
-        exit;
-    }
-
-    $stmt = $conn->prepare("
-        INSERT INTO enlisted_subjects (enlistment_id, sub_code, section) 
-        VALUES (?, ?, ?)
-    ");
-    $stmt->execute([$enlistment_id, $sub_code, $section]);
-
-    $stmt = $conn->prepare("
-        UPDATE schedule 
-        SET slots = slots - 1 
-        WHERE sub_code = ? AND section = ? AND sem_id = ?
-    ");
-    $stmt->execute([$sub_code, $section, $sem_id]);
-
-    $conn->commit();
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Subject enlisted successfully'
-    ]);
-
-} catch(PDOException $e) {
-    $conn->rollBack();
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
+
+// REMOVED $conn->close();
+?>

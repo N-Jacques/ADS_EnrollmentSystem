@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Enrollment</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://plm.edu.ph/FooterImage.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .header {
+            max-width: 100%;
+            max-height: 60px;
+            padding: 15px 25px;
+            background-color: white;
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            box-shadow: 0px 1px 10px 1px #52525286;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-family: 'Times New Roman', Times, serif; 
+            color: #b18819; 
+            font-size: 25px; 
+            font-weight: bold; 
+            vertical-align: middle; 
+        }
+
+        .header img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .tabsBtn {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; 
+            flex-wrap: nowrap; 
+        }
+
+        .tabs-btn {
+            font-size: 22px;
+            text-align: center;
+            background-color: transparent;
+            color: #080808;
+            padding: 10px 20px;
+            border-width: 0px;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap; 
+        }
+
+        .tabs-btn::after {
+            content: '';
+            position: absolute;
+            align-self: center;
+            left: 0;
+            right: 0;
+            bottom: -5px; 
+            width: 0;
+            height: 2px;
+            background-color: #b18819; 
+            transition: width 0.4s ease-in-out; 
+        }
+
+        .tabs-btn:hover::after {
+            width: 100%; 
+        }
+
+        .tabs-btn:hover {
+            color: #b18819;
+        }
+
+        /* CONTAINER */
+        .container {
+            background-color: #ffffff;
+            min-height: 700px;
+            width: 90%;        
+            margin: 0; 
+            margin-bottom: 50px;           
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            padding: 30px 35px;       
+            border-radius: 30px;
+            text-align: center;
+            align-items: center;
+            box-shadow: 0px 1px 10px 1px #52525286;}
+
+        /* TABLES */
+        table {
+            max-width: 100%;
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+
+        th {
+            background-color: #BF1A1A;
+            color: white;
+            padding: 8px;
+        }
+
+        td {
+            padding: 8px;
+            background: #f7f7f7;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+        .search-container {
+        top: 50%;
+        left: 40px;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        }
+
+        .search-input {
+            width: 300px;
+            height: 35px;
+            border-radius: 6px;
+            border: none;
+            padding: 0 12px;
+            font-size: 14px;
+            background-color: #e2e6eb;
+        }
+
+        .search-input:focus {
+            outline: 2px solid #CBCBCB;
+        }
+
+ .search-button {
+            width: 50px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            background-color: #CBCBCB;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-button img {
+            width: 28px;
+            height: 22px;
+        }
+
+        .search-button:hover {
+            background-color: #e2e6eb;
+        }
+
+            .dropdown {
+                height: 35px;
+                border: none;
+                border-radius: 6px;
+                background-color: #CBCBCB;
+                cursor: pointer;
+                font-size: 14px;
+                padding: 0 25px 0 10px; 
+                text-align: left;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+
+                background-image: url(../assets/dropdown.png);
+                background-repeat: no-repeat;
+                background-size: 12px 12px;
+                background-position: right 10px center; 
+            }
+
+        .dropdown:hover {
+            background-color: #e2e6eb;
+        }
+
+        .subject-dropdown {
+            width: 150px; 
+        }
+
+        .semester-dropdown {
+            width: 200px;
+        }
+
+        .dropdown-option {
+            text-align: center;
+            height: 35px;
+            padding: 0 0 50px 0; 
+        }
+
+        /*  SIGN OUT POP UP */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .popup-box {
+            background: white;
+            width: 320px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .popup-logo { 
+            width: 60px; 
+            height: 60px; 
+            margin-bottom: 10px; 
+            object-fit: contain; 
+        }
+
+        .popup-box h3 { 
+            margin: 5px 0 10px 0; 
+            font-size: 22px; 
+            color: #080808; 
+        }
+
+        .popup-box p { 
+            font-size: 14px; 
+            color: #444; 
+            margin-bottom: 20px; 
+        }
+
+        .popup-btn {
+            width: 50%;
+            padding: 12px;
+            border-radius: 13px;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .signout-btn { 
+            background-color: #8a6912; 
+            color: white; 
+        }
+
+        .signout-btn:hover { 
+            background-color: #b18819;
+ 
+        }
+
+        .cancel-btn { 
+            background-color: #CBCBCB; 
+            color: #000; 
+        }
+
+        .cancel-btn:hover { 
+            background-color: #e2e6eb; 
+        }
+
+
+    </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+    <div class="header">
+        <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png">
+        <p>PAMANTASAN NG LUNGSOD NG MAYNILA</p>  
+
+        <div class="tabsBtn">
+            <button class="tabs-btn" onclick="openDashboard()">Dashboard</button>
+            <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
+            <button style="color:#b18819" class="tabs-btn" onclick="openGrades()">View Grades</button>
+            <button class="tabs-btn" onclick="openEnrollment()">Enrollment</button>
+            <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <div class="container"> 
+        <h1>GRADES</h1>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search Subject..." oninput="filterGrades()">
+            <button class="search-button" onclick="filterGrades()">
+                <img src="../assets/searchLogoBtn.png" alt="Search Icon">
+            </button>
+
+            <!-- School Year -->
+            <select id="schoolyearDropdown" class="dropdown subject-dropdown" onchange="loadGrades()">
+                <option value="">Select Year</option>
+                <option value="ALL">All Years</option>
+                <option value="2324">2023-2024</option>
+                <option value="2425">2024-2025</option>
+                <option value="2526">2025-2026</option>
+            </select>
+
+
+            <!-- Semester -->
+            <select id="semesterDropdown" class="dropdown semester-dropdown" onchange="loadGrades()">
+                <option value="">All Semesters</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">Midyear</option>
+            </select>
+        </div>
+
+        <table id="gradesTable">
+            <thead>
+                <tr>
+                    <th>SUBJECT CODE</th>
+                    <th>SUBJECT TITLE</th>
+                    <th>GRADE</th>
+                    <th>REMARKS</th>
+                </tr>
+            </thead>
+            <tbody id="gradesBody">
+                <tr><td colspan="4">Please select a school year to view grades.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SIGN OUT POPUP -->
+    <div class="popup-overlay" id="signoutPopup">
+        <div class="popup-box">
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
+            <h3>Sign out?</h3>
+            <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
+
+            <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
+            <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
+        </div>
+    </div>
+
+<script>
+/* ============================================
+   HARDCODED SEMESTER IDS FOR EACH SCHOOL YEAR
+============================================ */
+const semesterMap = {
+    "2324": ["20231", "20232", "20233"],
+    "2425": ["20241", "20242", "20243"],
+    "2526": ["20251", "20252", "20253"]
+};
+
+/* ============================================
+   LOAD GRADES based on selected year & semester
+============================================ */
+function loadGrades() {
+    const yearValue = document.getElementById("schoolyearDropdown").value;
+    const semValue = document.getElementById("semesterDropdown").value;
+
+    if (!yearValue) {
+        document.getElementById("gradesBody").innerHTML = 
+            "<tr><td colspan='4'>Please select a school year to view grades.</td></tr>";
+        return;
+    }
+
+    let semesterIDs = [];
+
+    // If "All Years" is selected
+    if (yearValue === "ALL") {
+                const availableYears = ["2324", "2425", "2526"];
+                
+                availableYears.forEach(year => {
+                    const yearSemesters = semesterMap[year];
+                    
+                    if (!semValue) {
+                        // If "All Semesters", take everything for this year
+                        semesterIDs = semesterIDs.concat(yearSemesters);
+                    } else {
+                        // If specific sem, take only that index (0=1st, 1=2nd, 2=Mid)
+                        const semIndex = parseInt(semValue) - 1;
+                        if (yearSemesters[semIndex]) {
+                            semesterIDs.push(yearSemesters[semIndex]);
+                        }
+                    }
+                });
+            } else {
+                // Specific Year Logic
+                const allSemesters = semesterMap[yearValue];
+                
+                if (!semValue) {
+                    semesterIDs = allSemesters;
+                } else {
+                    semesterIDs = [allSemesters[parseInt(semValue) - 1]];
+                }
+            }
+
+
+    // Use POST for cleaner AJAX request
+    const formData = new FormData();
+    formData.append("semester_ids", semesterIDs.join(","));
+
+    fetch("../backend/search/viewgrades_search.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.text())
+    .then(html => {
+        document.getElementById("gradesBody").innerHTML = html;
+        filterGrades(); // Apply search filter after loading
+    })
+    .catch(err => {
+        console.error("Error fetching grades:", err);
+        document.getElementById("gradesBody").innerHTML = 
+            "<tr><td colspan='4'>Error loading grades. Please try again.</td></tr>";
+    });
+}
+
+/* ============================================
+   FILTER GRADES BY SEARCH INPUT
+============================================ */
+function filterGrades() {
+    const searchValue = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#gradesBody tr");
+
+    rows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        row.style.display = rowText.includes(searchValue) ? "" : "none";
+    });
+}
+
+/* ============================================
+   NAVIGATION FUNCTIONS
+============================================ */
+function openDashboard() { window.location.href = "dashboard.html"; }
+function openProfile() { window.location.href = "studentProfile.html"; }
+function openGrades() { window.location.href = "viewGrades.html"; }
+function openEnrollment() { window.location.href = "enrollment_1.html"; }
+function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
+function confirmSignout() { window.location.href = "logIn_wPass.html"; }
+</script>
+
+</body>
+</html>

@@ -420,6 +420,25 @@
             box-shadow: 0 10px 30px rgba(0,0,0,.3);
         }
 
+        .popup-logo { 
+            width: 60px; 
+            height: 60px; 
+            margin-bottom: 10px; 
+            object-fit: contain; 
+        }
+
+        .popup-box h3 { 
+            margin: 5px 0 10px 0; 
+            font-size: 22px; 
+            color: #080808; 
+        }
+
+        .popup-box p { 
+            font-size: 14px; 
+            color: #444; 
+            margin-bottom: 20px; 
+        }
+
         .popup-btn {
             width: 45%;
             margin: 10px 2%;
@@ -435,8 +454,17 @@
             color: white;
         }
 
+        .signout-btn:hover { 
+            background-color: #b18819;
+ 
+        }
+
         .cancel-btn {
             background: #cbcbcb;
+        }
+
+        .cancel-btn:hover { 
+            background-color: #e2e6eb; 
         }
 
     </style>
@@ -537,6 +565,7 @@
     <!-- Sign Out Popup -->
     <div class="popup-overlay" id="signOutPopup">
         <div class="popup-box">
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
             <h3>Confirm Sign Out</h3>
             <p>Are you sure you want to sign out?</p>
             <button class="popup-btn signout-btn" onclick="window.location.href = 'logIn_wPass.html'">SIGN OUT</button>

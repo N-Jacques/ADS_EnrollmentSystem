@@ -17,7 +17,7 @@ CREATE TABLE status ( -- This will store info about student status if irregular 
   , status_name     VARCHAR(10)     DEFAULT ' '
   , CONSTRAINT status_id_pk PRIMARY KEY(status_id)
 );
-
+ -- student id, firstname, middlename, lastname, yrlevel, program_id, status_id--
 CREATE TABLE students ( -- This will store info about the student.
   student_id        VARCHAR(10)     NOT NULL
   , firstname       VARCHAR(50)     DEFAULT ' '
@@ -139,6 +139,7 @@ INSERT INTO PROGRAMS VALUES ('BSME', 'Bachelor of Science in Mechanical Engineer
 INSERT INTO STATUS VALUES ('IRR', 'Irregular');
 INSERT INTO STATUS VALUES ('REG', 'Regular');
 
+                          -- student id, firstname, middlename, lastname, yrlevel, program_id, status_id --
 INSERT INTO STUDENTS VALUES ('202250051', 'Luis Albashier', 'De Vera', 'Carlos', 4, 'BSIT', 'IRR');
 INSERT INTO STUDENTS VALUES ('202336039', 'Nicaela', 'Geronimo', 'Comia', 3, 'BSIT', 'REG'); 
 INSERT INTO STUDENTS VALUES ('202250011', 'Ayen Zaica', 'Bernardo', 'Dy', 4, 'BSIT', 'IRR');

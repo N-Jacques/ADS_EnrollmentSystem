@@ -26,7 +26,7 @@ try {
     }
     $stmt_check->close();
 
-    // B. Generate new Enlistment ID (Random 5-char string based on your VARCHAR(5) schema)
+    // B. Generate new Enlistment ID (Random 5-char string)
     $enlistment_id = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
     $date_created = date('Y-m-d');
 
@@ -41,17 +41,17 @@ try {
 
     // D. Process Subjects
     $sql_detail = "INSERT INTO enlisted_subjects (enlistment_id, sub_code, section) VALUES (?, ?, ?)";
-    
-    // NOTE: We update ALL schedule rows for this section/subject/sem combination.
-    // Since 'schedule' has a composite PK including day_id, a single section (e.g. Block 1) might have 2 rows (Mon, Thu).
-    // Decrementing slots for the section implies decrementing it for all days associated with that section.
     $sql_update_slots = "UPDATE schedule SET slots = slots - 1 WHERE sub_code = ? AND section = ? AND sem_id = ? AND slots > 0";
+    
+    // --- NEW: Query to add to subjects_taken with NULL grade ---
+    // This allows the subject to appear in grades/records immediately as 'enrolled'
+    $sql_taken = "INSERT INTO subjects_taken (student_id, sub_code, sem_id, grade) VALUES (?, ?, ?, NULL)";
 
     foreach ($subjects as $sub) {
         $sub_code = $sub['code'];
         $section  = $sub['section'];
 
-        // D1. Insert into enlisted_subjects
+        // D1. Insert into enlisted_subjects (Links to Enlistment Header)
         $stmt_detail = execute_query($conn, $sql_detail, "sss", [$enlistment_id, $sub_code, $section]);
         if (!$stmt_detail) {
             throw new Exception("Failed to record subject: " . $sub_code);
@@ -61,9 +61,7 @@ try {
         // D2. Deduct Slots
         $stmt_slots = execute_query($conn, $sql_update_slots, "sss", [$sub_code, $section, $sem_id]);
         
-        // If 0 rows affected, it means the section is invalid OR slots were 0 (Full)
         if ($stmt_slots->affected_rows === 0) {
-            // Check specifically why it failed to give a better error
             $check_full = execute_query($conn, "SELECT slots FROM schedule WHERE sub_code=? AND section=? AND sem_id=?", "sss", [$sub_code, $section, $sem_id]);
             $res_full = $check_full->get_result();
             
@@ -74,6 +72,14 @@ try {
             }
         }
         $stmt_slots->close();
+
+        // D3. Insert into subjects_taken 
+        $stmt_taken = execute_query($conn, $sql_taken, "sss", [$student_id, $sub_code, $sem_id]);
+        if (!$stmt_taken) {
+            // This catches if the student is already in subjects_taken for this specific semester + subject combo
+            throw new Exception("Failed to add to academic record: " . $sub_code);
+        }
+        $stmt_taken->close();
     }
 
     // 3. Commit

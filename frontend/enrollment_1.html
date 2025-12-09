@@ -534,13 +534,14 @@
         <button class="next-btn" onclick="goToConfirmation()">NEXT</button>
     </div>
 
-    <!-- Sign Out Popup -->
-    <div class="popup-overlay" id="signOutPopup">
+    <!-- SIGN OUT POPUP -->
+    <div class="popup-overlay" id="signoutPopup">
         <div class="popup-box">
-            <h3>Confirm Sign Out</h3>
-            <p>Are you sure you want to sign out?</p>
-            <button class="popup-btn signout-btn" onclick="window.location.href = 'logIn_wPass.html'">SIGN OUT</button>
-            <button class="popup-btn cancel-btn" onclick="document.getElementById('signOutPopup').style.display='none'">CANCEL</button>
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
+            <h3>Sign out?</h3>
+            <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
+            <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
+            <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
         </div>
     </div>
 
@@ -733,7 +734,13 @@
         function openProfile() { window.location.href = "studentProfile.html"; }
         function openGrades() { window.location.href = "viewGrades.html"; }
         function openEnrollment() { window.location.href = "enrollment_1.html"; }
-        function showPopup(id) { document.getElementById(id).style.display = 'flex'; }
+
+        function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
+        function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
+        function confirmSignout() { 
+            localStorage.clear();
+            window.location.href = "logIn_wPass.html"; 
+        }
     </script>
 </body>
 </html>

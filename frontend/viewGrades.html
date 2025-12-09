@@ -438,7 +438,10 @@ function openGrades() { window.location.href = "viewGrades.html"; }
 function openEnrollment() { window.location.href = "enrollment_1.html"; }
 function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
 function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
-function confirmSignout() { window.location.href = "logIn_wPass.html"; }
+function confirmSignout() { 
+    localStorage.clear();
+    window.location.href = "logIn_wPass.html"; 
+}
 
 
 //Auto-load grades

@@ -397,47 +397,54 @@
             background: #96700e;
         }
 
-        /********************************************************
-        * POPUP MODAL
-        ********************************************************/
+        /* SIGN OUT POPUP */
         .popup-overlay {
             position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.5);
-            backdrop-filter: blur(4px);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(3px);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 2000;
+            z-index: 999;
         }
 
         .popup-box {
             background: white;
-            padding: 30px;
-            width: 350px;
+            width: 320px;
+            padding: 25px;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,.3);
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
         }
+
+        .popup-logo { 
+            width: 60px; 
+            height: 60px; 
+            margin-bottom: 10px; 
+            object-fit: contain; 
+        }
+
+        .popup-box h3 { margin: 5px 0 10px 0; font-size: 22px; color: #080808; }
+        .popup-box p { font-size: 14px; color: #444; margin-bottom: 20px; }
 
         .popup-btn {
-            width: 45%;
-            margin: 10px 2%;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
+            width: 50%;
+            padding: 12px;
+            border-radius: 13px;
             border: none;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 10px;
         }
 
-        .signout-btn {
-            background: #8a6912;
-            color: white;
-        }
-
-        .cancel-btn {
-            background: #cbcbcb;
-        }
+        .signout-btn { background-color: #8a6912; color: white; }
+        .signout-btn:hover { background-color: #b18819; }
+        .cancel-btn { background-color: #CBCBCB; color: #000; }
+        .cancel-btn:hover { background-color: #e2e6eb; }
 
     </style>
 
@@ -454,7 +461,7 @@
             <button class="tabs-btn" onclick="openProfile()">Student Profile</button>
             <button class="tabs-btn" onclick="openGrades()">View Grades</button>
             <button class="tabs-btn" style="color:#b18819;" onclick="openEnrollment()">Enrollment</button>
-            <button class="tabs-btn" onclick="showPopup('signOutPopup')">Sign Out</button>
+            <button class="tabs-btn" onclick="openSignoutPopup()">Sign Out</button>
         </div>
     </div>
 
@@ -540,6 +547,7 @@
             <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
             <h3>Sign out?</h3>
             <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
+
             <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
             <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
         </div>

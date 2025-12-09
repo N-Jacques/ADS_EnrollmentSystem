@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
             // Redirect to student profile page (html)
-            header("Location: /ADS_Final_Project/frontend/studentProfile.html?id=" . urlencode($studentID));
+            header("Location: ../../frontend/studentProfile.html?id=" . urlencode($studentID));
             /*debugging line
             echo "Student found: " . $row['student_id'];*/
             exit();
@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Invalid Credentials! RowCount: " . $stmt->rowCount();*/
             echo "<script>
                 alert('Invalid Credentials! Please try again.');
-                window.location.href = '/ADS_Final_Project/frontend/login_wPass.html';
+                window.location.href = '../frontend/login_wPass.html';
             </script>";
             exit();
         }

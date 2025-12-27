@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Irregular Student Enrollment</title>
-    <link rel="icon" href="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" type="image/png">
+    <title>Student Enrollment</title>
 
     <style>
       
@@ -467,7 +466,7 @@
     </div>
 
     <div class="name-panel">
-        <span class="clickable-name" onclick="openProfile()" id="studentName">Loading...</span>
+        <span class="clickable-name" id="studentName">Loading...</span>
         <span class="student-number" id="displayStudentId"></span>
         <input type="hidden" id="studentId" value=""> 
     </div>
@@ -542,14 +541,15 @@
         <button class="next-btn" onclick="goToConfirmation()">NEXT</button>
     </div>
 
-    <!-- Sign Out Popup -->
+    <!-- SIGN OUT POPUP -->
     <div class="popup-overlay" id="signoutPopup">
         <div class="popup-box">
-            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo" style="width:60px; margin-bottom:10px;">
+            <img src="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" alt="Logo" class="popup-logo">
             <h3>Sign out?</h3>
             <p>You can always sign back in at any time. Are you sure you want to sign out?</p>
-            <button class="popup-btn signout-btn" onclick="confirmSignout()">SIGN OUT</button>
-            <button class="popup-btn cancel-btn" onclick="closePopup()">CANCEL</button>
+
+            <button class="popup-btn signout-btn" onclick="confirmSignout()">Sign out</button>
+            <button class="popup-btn cancel-btn" onclick="closePopup()">Cancel</button>
         </div>
     </div>
 
@@ -562,14 +562,14 @@
         document.addEventListener("DOMContentLoaded", () => {
             initDraftSubjects(); 
 
-            // Initialize chain: Profile 
+            // Initialize chain: Profile -> Check Status -> Load History -> Perform Default Search
             loadStudentProfile()
                 .then(() => {
                     checkEnrollmentStatus();
-                    return loadPassedSubjects(); 
+                    return loadPassedSubjects(); // Wait for this...
                 })
                 .then(() => {
-                    performSearch(); 
+                    performSearch(); // ...BEFORE running the search
                 })
                 .catch(err => {
                     console.error("Initialization failed:", err);
@@ -603,16 +603,7 @@
                         window.location.href = 'logIn_wPass.html';
                         throw new Error("No session");
                     }
-                    
-                    const newStudentId = data.student_id;
-                    const oldStudentId = localStorage.getItem("student_id");
-                    if(oldStudentId && oldStudentId !== newStudentId) {
-                        localStorage.removeItem("enlistedSubjects");
-                        enlistedSubjects = [];
-                        renderEnlistedTable();
-                    }
-
-                    STUDENT_ID = newStudentId;
+                    STUDENT_ID = data.student_id;
                     localStorage.setItem("student_id", STUDENT_ID);
                     
                     const name = `${data.lastname}, ${data.firstname}`;
@@ -622,20 +613,23 @@
         }
 
         function loadPassedSubjects() {
-            if(!STUDENT_ID) return Promise.resolve();
-            return fetch(`../backend/enrollment/taken_subjects.php?student_id=${STUDENT_ID}`)
+            if(!STUDENT_ID) return;
+            fetch(`../backend/enrollment/taken_subjects.php?student_id=${STUDENT_ID}`)
                 .then(res => res.json())
                 .then(data => { if(data.success) passedSubjects = data.passed_subjects; });
         }
 
+        // --- CHECK IF ALREADY ENROLLED ---
         function checkEnrollmentStatus() {
             const sem = document.getElementById("semesterId").value;
             if(!STUDENT_ID) return;
             
+            // Note: Changed filename to check_enrollment_status.php as requested
             fetch(`../backend/enrollment/check_enrollment_status.php?student_id=${STUDENT_ID}&sem_id=${sem}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.is_enrolled) {
+                        // Redirect STRAIGHT to Schedule View (Step 3) if already official
                         window.location.replace("enrollment_3.html");
                     }
                 })
@@ -654,6 +648,8 @@
                 .then(html => {
                     const tbody = document.getElementById("resultsTableBody");
                     tbody.innerHTML = html;
+                    
+                    // Mark passed subjects as disabled
                     tbody.querySelectorAll('button').forEach(btn => {
                         const code = btn.getAttribute('data-code');
                         if (passedSubjects.includes(code)) {
@@ -676,9 +672,15 @@
                 slots: parseInt(btn.getAttribute('data-slots'))
             };
 
-            if (enlistedSubjects.some(s => s.code === sub.code)) return alert("Subject already in list.");
-            if (sub.slots <= 0) return alert("No slots available.");
-            if (findConflict(sub)) return alert("Schedule conflict detected.");
+            if (enlistedSubjects.some(s => s.code === sub.code)) {
+                return alert("Subject already in list.");
+            }
+            if (sub.slots <= 0) {
+                return alert("No slots available.");
+            }
+            if (findConflict(sub)) {
+                return alert("Schedule conflict detected with another subject.");
+            }
 
             enlistedSubjects.push(sub);
             saveDraft();
@@ -699,6 +701,7 @@
             };
 
             const newTimes = parse(newSub.schedule);
+            
             for (let existing of enlistedSubjects) {
                 const exTimes = parse(existing.schedule);
                 for (let n of newTimes) {
@@ -737,6 +740,7 @@
             });
         }
 
+        // NAVIGATION TO PAGE 2
         function goToConfirmation() {
             if (enlistedSubjects.length === 0) return alert("Please enlist at least one subject.");
             saveDraft(); 
@@ -747,7 +751,7 @@
         function openProfile() { window.location.href = "studentProfile.html"; }
         function openGrades() { window.location.href = "viewGrades.html"; }
         function openEnrollment() { window.location.href = "enrollment_1.html"; }
-        
+
         function openSignoutPopup() { document.getElementById("signoutPopup").style.display = "flex"; }
         function closePopup() { document.getElementById("signoutPopup").style.display = "none"; }
         function confirmSignout() { 

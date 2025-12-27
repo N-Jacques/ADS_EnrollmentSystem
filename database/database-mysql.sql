@@ -107,6 +107,7 @@ CREATE TABLE enlistment ( -- This will store info about the students' enlistment
 CREATE TABLE enlisted_subjects ( -- This will track the subjects being enlisted.
   enlistment_id     VARCHAR(5)      NOT NULL
   , sub_code        VARCHAR(15)     NOT NULL
+  , section         VARCHAR(2)      DEFAULT
   , CONSTRAINT enlisted_subjects_pk PRIMARY KEY(enlistment_id, sub_code)
   , CONSTRAINT enlistment_id_fk1 FOREIGN KEY(enlistment_id) REFERENCES enlistment(enlistment_id)
   , CONSTRAINT sub_code_fk3 FOREIGN KEY(sub_code) REFERENCES subjects(sub_code)

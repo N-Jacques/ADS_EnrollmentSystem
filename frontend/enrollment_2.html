@@ -576,9 +576,6 @@
             if (result.success) {
                 alert("Enrollment successful!");
                 
-                // IMPORTANT: We do NOT clear localStorage here.
-                // This ensures that if the user hits Back, they still see their subjects
-                // instead of a blank screen. The enrollment is now final in the DB.
                 
                 window.location.href = "enrollment_3.html";
             } else {

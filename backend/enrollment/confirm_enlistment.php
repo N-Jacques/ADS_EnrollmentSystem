@@ -26,11 +26,11 @@ try {
     }
     $stmt_check->close();
 
-    // B. Generate new Enlistment ID (Random 5-char string)
+    // B. Generate new Enlistment ID
     $enlistment_id = substr(str_shuffle("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
     $date_created = date('Y-m-d');
 
-    // C. Insert Header (Enlistment Table)
+    // C1. Insert Header (Enlistment Table)
     $sql_header = "INSERT INTO enlistment (enlistment_id, student_id, sem_id, date_created) VALUES (?, ?, ?, ?)";
     $stmt_header = execute_query($conn, $sql_header, "ssss", [$enlistment_id, $student_id, $sem_id, $date_created]);
     
@@ -39,19 +39,27 @@ try {
     }
     $stmt_header->close();
 
+    // C2. Insert into 'enrolled' table 
+    $sql_enrolled = "INSERT INTO enrolled (enlistment_id, date_created) VALUES (?, NOW())";
+    $stmt_enrolled = execute_query($conn, $sql_enrolled, "s", [$enlistment_id]);
+
+    if (!$stmt_enrolled) {
+        throw new Exception("Failed to record enrollment timestamp.");
+    }
+    $stmt_enrolled->close();
+
     // D. Process Subjects
     $sql_detail = "INSERT INTO enlisted_subjects (enlistment_id, sub_code, section) VALUES (?, ?, ?)";
     $sql_update_slots = "UPDATE schedule SET slots = slots - 1 WHERE sub_code = ? AND section = ? AND sem_id = ? AND slots > 0";
     
-    // --- NEW: Query to add to subjects_taken with NULL grade ---
-    // This allows the subject to appear in grades/records immediately as 'enrolled'
-    $sql_taken = "INSERT INTO subjects_taken (student_id, sub_code, sem_id, grade) VALUES (?, ?, ?, NULL)";
+    // --- CRITICAL FIX: Use INSERT IGNORE to prevent 'Duplicate entry' crashes ---
+    $sql_taken = "INSERT IGNORE INTO subjects_taken (student_id, sub_code, sem_id, grade) VALUES (?, ?, ?, NULL)";
 
     foreach ($subjects as $sub) {
         $sub_code = $sub['code'];
         $section  = $sub['section'];
 
-        // D1. Insert into enlisted_subjects (Links to Enlistment Header)
+        // D1. Insert into enlisted_subjects
         $stmt_detail = execute_query($conn, $sql_detail, "sss", [$enlistment_id, $sub_code, $section]);
         if (!$stmt_detail) {
             throw new Exception("Failed to record subject: " . $sub_code);
@@ -73,12 +81,9 @@ try {
         }
         $stmt_slots->close();
 
-        // D3. Insert into subjects_taken 
+        // D3. Insert into subjects_taken
+    
         $stmt_taken = execute_query($conn, $sql_taken, "sss", [$student_id, $sub_code, $sem_id]);
-        if (!$stmt_taken) {
-            // This catches if the student is already in subjects_taken for this specific semester + subject combo
-            throw new Exception("Failed to add to academic record: " . $sub_code);
-        }
         $stmt_taken->close();
     }
 

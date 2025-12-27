@@ -50,7 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Invalid Credentials! RowCount: " . $stmt->rowCount();*/
             echo "<script>
                 alert('Invalid Credentials! Please try again.');
-                window.location.href = '../frontend/login_wPass.html';
+                window.location.href = '../../frontend/login_wPass.html';
             </script>";
             exit();
         }

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Student Enrollment</title>
+    <title>Irregular Student Enrollment</title>
+    <link rel="icon" href="https://plm.edu.ph/assets/plm-logo.DLcRDINN.png" type="image/png">
 </head>
 
 <style>
@@ -575,9 +576,6 @@
             if (result.success) {
                 alert("Enrollment successful!");
                 
-                // IMPORTANT: We do NOT clear localStorage here.
-                // This ensures that if the user hits Back, they still see their subjects
-                // instead of a blank screen. The enrollment is now final in the DB.
                 
                 window.location.href = "enrollment_3.html";
             } else {
